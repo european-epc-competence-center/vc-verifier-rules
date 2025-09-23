@@ -118,12 +118,12 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     
     it('should not validate credential chain for Company Prefix because credential can not be verified', async () => {
         // In line update presentation to only include the company prefix credential
-        const mockPresentation  = {...mockPresentationParty, verifiableCredential: [mockCompanyPrefixCredential]};
-        const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentation, mockCompanyPrefixCredential);
+        const mockCompanyPrefixCredentialFail = {...mockCompanyPrefixCredential, id: "mockCredentialId_Fail"};
+        const mockPresentation  = {...mockPresentationParty, verifiableCredential: [mockCompanyPrefixCredentialFail]};
+        const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentation, mockCompanyPrefixCredentialFail);
 
         // Mock Overrides for Testing Different Scenarios
         resultBuildChain.inPresentation = false;
-        resultBuildChain.credential.id =  "mockCredentialId_Fail";
 
         const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true);
         expect(result.verified).toBe(false);

@@ -5,15 +5,16 @@ import { parseGS1DigitalLink } from "../subject/check-credential-subject-Id-digi
 import { gs1CompanyPrefixCredentialType } from "../types/gs1-company-prefix-type";
 import { gs1KeyCredentialType } from "../types/gs1-key-type";
 import { checkCredentialIssuers, checkIssuerToSubjectId, compareLicenseValue } from "./shared-extended.js";
+import { normalizeCredential } from "../../utility/jwt-utils.js";
 
 // No Implementation for this rule until GS1 Global Provided update test credentials
 export async function validateExtendedCompanyPrefixCredential(credentialType: string, 
     credentialChain: credentialChainMetaData): Promise<gs1RulesResult> {
 
-    const gs1CredentialCheck: gs1RulesResult = { credentialId: credentialChain.credential.id, credentialName: credentialType, verified: true, errors: []};
-    const credential = credentialChain.credential;
+    const gs1CredentialCheck: gs1RulesResult = { credentialId: normalizeCredential(credentialChain.credential).id, credentialName: credentialType, verified: true, errors: []};
+    const credential = normalizeCredential(credentialChain.credential);
     const credentialSubject = credential.credentialSubject as gs1KeyCredentialType;
-    const extendedCredential = credentialChain.extendedCredentialChain?.credential;
+    const extendedCredential = credentialChain.extendedCredentialChain?.credential ? normalizeCredential(credentialChain.extendedCredentialChain?.credential) : undefined;
 
     if (!extendedCredential) {
         gs1CredentialCheck.verified = false;

@@ -3,6 +3,7 @@ import { credentialChainMetaData } from "../../engine/validate-extended-credenti
 import { gs1CredentialValidationRuleResult, subjectLicenseValue } from "../../gs1-rules-types.js";
 import { gs1RulesResult, VerifiableCredential } from "../../types.js";
 import { checkIssuerToSubjectId, checkIssuerToSubjectId_schema, compareLicenseValue, getCredentialIssuer } from "./shared-extended.js";
+import { normalizeCredential } from "../../utility/jwt-utils.js";
 
 // License Prefix Credential Must be issued by GS1 Global
 const GS1_GLOBAL_DID = "did:web:id.gs1.org";
@@ -53,11 +54,11 @@ export function compareLicenseLengthsToExtended_schema(credentialSubject: subjec
 export async function validateExtendedLicensePrefix(credentialType: string, 
     credentialChain: credentialChainMetaData): Promise<gs1RulesResult> {
 
-    const gs1CredentialCheck: gs1RulesResult = { credentialId: credentialChain.credential.id, credentialName: credentialType, verified: true, errors: []};
+    const gs1CredentialCheck: gs1RulesResult = { credentialId: normalizeCredential(credentialChain.credential).id, credentialName: credentialType, verified: true, errors: []};
 
-    const credential = credentialChain.credential;
+    const credential = normalizeCredential(credentialChain.credential);
     const credentialSubject = credential.credentialSubject;
-    const extendedCredential = credentialChain.extendedCredentialChain?.credential;
+    const extendedCredential = credentialChain.extendedCredentialChain?.credential ? normalizeCredential(credentialChain.extendedCredentialChain?.credential) : undefined;
     const extendedCredentialSubject = extendedCredential?.credentialSubject;
 
     if (!extendedCredential) {
@@ -95,11 +96,11 @@ export async function validateExtendedLicensePrefix(credentialType: string,
 export function validateExtendedLicensePrefix_JsonSchema(credentialType: string, 
     credentialChain: credentialChainMetaData): gs1RulesResult {
 
-    const gs1CredentialCheck: gs1RulesResult = { credentialId: credentialChain.credential.id, credentialName: credentialType, verified: true, errors: []};
+    const gs1CredentialCheck: gs1RulesResult = { credentialId: normalizeCredential(credentialChain.credential).id, credentialName: credentialType, verified: true, errors: []};
 
-    const credential = credentialChain.credential;
+    const credential = normalizeCredential(credentialChain.credential);
     const credentialSubject = credential.credentialSubject;
-    const extendedCredential = credentialChain.extendedCredentialChain?.credential;
+    const extendedCredential = credentialChain.extendedCredentialChain?.credential ? normalizeCredential(credentialChain.extendedCredentialChain?.credential) : undefined;
     const extendedCredentialSubject = extendedCredential?.credentialSubject;
 
     if (!extendedCredential) {

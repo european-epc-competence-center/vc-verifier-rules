@@ -1,6 +1,7 @@
 import { dataMismatchBetweenDataKeyCredential, dataMissingToValidateCredentialChain, invalidIssuer } from "../../engine/gs1-credential-errors.js";
 import { credentialChainMetaData } from "../../engine/validate-extended-credential";
-import { CredentialSubject, gs1RulesResult, VerifiableCredential } from "../../types.js";
+import { CredentialSubject, gs1RulesResult, VerifiableCredential, verifiableJwt } from "../../types.js";
+import { normalizeCredential } from "../../utility/jwt-utils.js";
 import { parseGS1DigitalLink } from "../subject/check-credential-subject-Id-digital-link.js";
 import { gs1Organization } from "../types/gs1-shared-types.js";
 import  { checkCredentialChainIssuers } from "./shared-extended.js";
@@ -13,7 +14,7 @@ export type credentialChainIssuers = {
 }
 
 export type credentialChainContext = {
-    credential: VerifiableCredential;
+    credential: VerifiableCredential | verifiableJwt | string;
     extendedCredentialChain?: credentialChainMetaData;
 }
 
@@ -43,7 +44,7 @@ export type credentialSubjectBasic = {
 //     dataCredentialSubject?: credentialSubjectData | credentialSubjectOrganization;
 export type credentialChainDataKey = {
     isValid: boolean;
-    dataCredential?: VerifiableCredential;
+    dataCredential?: VerifiableCredential | verifiableJwt | string;
     dataCredentialSubject?: CredentialSubject;
     KeyCredential?: credentialChainContext;
     keyCredentialSubject?: CredentialSubject;
@@ -57,16 +58,19 @@ export type credentialChainDataKey = {
 // Developer Note: Future handle different parent types for key credential
 function setupDataCredentialChain(credentialChain: credentialChainMetaData) : credentialChainDataKey {
 
+    const dataCredential = normalizeCredential(credentialChain.credential); 
+
+
     const dataCredentialChain : credentialChainDataKey = { 
         isValid: true,
-        dataCredential: credentialChain.credential,
-        dataCredentialSubject: credentialChain.credential.credentialSubject,
-        KeyCredential: credentialChain.extendedCredentialChain,
-        keyCredentialSubject: credentialChain.extendedCredentialChain ? credentialChain.extendedCredentialChain?.credential?.credentialSubject : undefined
+        dataCredential: dataCredential,
+        dataCredentialSubject: dataCredential.credentialSubject,
+        KeyCredential: credentialChain.extendedCredentialChain?.credential ? {credential: normalizeCredential(credentialChain.extendedCredentialChain?.credential), extendedCredentialChain: credentialChain.extendedCredentialChain?.extendedCredentialChain} : undefined,
+        keyCredentialSubject: credentialChain.extendedCredentialChain?.credential ? normalizeCredential(credentialChain.extendedCredentialChain?.credential)?.credentialSubject : undefined
     }
 
     dataCredentialChain.companyPrefixCredential = dataCredentialChain.KeyCredential?.extendedCredentialChain;
-    dataCredentialChain.companyPrefixCredentialSubject = dataCredentialChain.companyPrefixCredential?.credential?.credentialSubject;
+    dataCredentialChain.companyPrefixCredentialSubject = dataCredentialChain.companyPrefixCredential?.credential ? normalizeCredential(dataCredentialChain.companyPrefixCredential?.credential)?.credentialSubject : undefined;
 
     // Return Missing Data Error if any of the expected credential subjects are missing from the chain
     if (!dataCredentialChain.dataCredentialSubject || !dataCredentialChain.keyCredentialSubject || !dataCredentialChain.companyPrefixCredentialSubject) {
@@ -137,7 +141,7 @@ function checkDataCredentialIssuerChain(dataCredentialChain: credentialChainData
 export async function validateExtendedKeyDataCredential(credentialType: string,
     credentialChain:  credentialChainMetaData): Promise<gs1RulesResult> {
 
-        const gs1CredentialCheck: gs1RulesResult = { credentialId: credentialChain.credential.id, credentialName: credentialType, verified: false, errors: []};
+        const gs1CredentialCheck: gs1RulesResult = { credentialId: normalizeCredential(credentialChain.credential).id, credentialName: credentialType, verified: false, errors: []};
 
     const dataCredentialChain = setupDataCredentialChain(credentialChain);
     if (!dataCredentialChain.isValid) {
@@ -164,7 +168,7 @@ export async function validateExtendedKeyDataCredential(credentialType: string,
 export async function validateExtendedKeyCredential(credentialType: string,
     credentialChain:  credentialChainMetaData): Promise<gs1RulesResult> {
 
-    const gs1CredentialCheck: gs1RulesResult = { credentialId: credentialChain.credential.id, credentialName: credentialType, verified: false, errors: []};
+    const gs1CredentialCheck: gs1RulesResult = { credentialId: normalizeCredential(credentialChain.credential).id, credentialName: credentialType, verified: false, errors: []};
  
     const dataCredentialChain = setupDataCredentialChain(credentialChain);
     if (!dataCredentialChain.isValid) {

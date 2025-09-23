@@ -8,8 +8,11 @@ import { mockJoseCredentialPresentationProductJwt } from './mock-jose-credential
 
 const getMockCredentialFromPresentation = function(presentation: string, indexValue: number) { 
   const presentationToVerify = getDecodedPresentation(presentation);
-  const mockCredential = presentationToVerify.verifiableCredential[indexValue];
-  return mockCredential;
+  const credentials = presentationToVerify.verifiableCredential;
+  if (Array.isArray(credentials)) {
+      return credentials[indexValue];
+  }
+  return credentials; // Return single credential if not array
 };
 
 
@@ -306,6 +309,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
       const credentialSubjectId = undefined;
 
       const mockCompanyPrefixCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 0);
+      // @ts-expect-error - This is a test
       mockCompanyPrefixCredential.credentialSubject.id = credentialSubjectId;
    
       const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential);

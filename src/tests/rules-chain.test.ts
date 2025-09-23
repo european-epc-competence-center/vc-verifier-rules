@@ -1,11 +1,12 @@
 import { resolveExternalCredential } from '../lib/engine/resolve-external-credential';
 import { buildCredentialChain, credentialChainMetaData, validateCredentialChain } from '../lib/engine/validate-extended-credential';
 import { CredentialSubjectSchema } from '../lib/rules-schema/rules-schema-types';
-import { externalCredential, gs1CredentialValidationRule, gs1RulesResult, VerifiableCredential, verifyExternalCredential } from '../lib/types';
+import { externalCredential, gs1CredentialValidationRule, gs1RulesResult, VerifiableCredential, verifyExternalCredential, verifiableJwt } from '../lib/types';
 import { mockCompanyPrefixCredential, mockGenericCredential, mockPrefixLicenseCredential, mockPresentationParty } from './mock-credential';
 import { validateExtendedCompanyPrefixCredential } from '../lib/rules-definition/chain/validate-extended-company-prefix';
 import { validateExtendedKeyDataCredential } from '../lib/rules-definition/chain/validate-extended-data-key';
 import { compareLicenseValue } from '../lib/rules-definition/chain/shared-extended';
+import { normalizeCredential } from '../lib/utility/jwt-utils';
 
 // Test function to resolve mock credentials
 const mock_getExternalCredential: externalCredential = async (url: string) : Promise<VerifiableCredential> => {
@@ -18,9 +19,11 @@ const mock_getExternalCredential: externalCredential = async (url: string) : Pro
 }
 
 // Test function to verify mock credentials
-const mock_checkExternalCredential: verifyExternalCredential = async (credential: VerifiableCredential) : Promise<gs1RulesResult> => {
+const mock_checkExternalCredential: verifyExternalCredential = async (credential: VerifiableCredential | verifiableJwt | string) : Promise<gs1RulesResult> => {
+    // Normalize the credential to handle JWT strings and verifiableJwt types
+    const normalizedCredential = normalizeCredential(credential);
 
-    const verifyStatus = credential.id === "mockCredentialId_Fail" ? false : true;
+    const verifyStatus = normalizedCredential.id === "mockCredentialId_Fail" ? false : true;
     const errors: gs1CredentialValidationRule[] = [];
     if (!verifyStatus) {
         errors.push({code: "MOCK173", rule: "Mock Rule"})

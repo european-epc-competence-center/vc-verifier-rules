@@ -1,6 +1,7 @@
 import { mockPrefixLicenseCredential } from "./mock-credential.js";
-import { externalCredential, gs1CredentialValidationRule, gs1RulesResult, jsonSchemaLoader, VerifiableCredential, verifyExternalCredential } from "../lib/types";
+import { externalCredential, gs1CredentialValidationRule, gs1RulesResult, jsonSchemaLoader, VerifiableCredential, verifyExternalCredential, verifiableJwt } from "../lib/types";
 import { mock_gs1CompanyPrefixSchema, mock_gs1ProductDataSchema } from "./mock-schema.js";
+import { normalizeCredential } from "../lib/utility/jwt-utils.js";
 
 // Test function to resolve mock credentials
 export const mock_getExternalCredential: externalCredential = async (url: string) : Promise<VerifiableCredential> => {
@@ -13,9 +14,11 @@ export const mock_getExternalCredential: externalCredential = async (url: string
 }
 
 // Test function to verify mock credentials
-export const mock_checkExternalCredential: verifyExternalCredential = async (credential: VerifiableCredential) : Promise<gs1RulesResult> => {
+export const mock_checkExternalCredential: verifyExternalCredential = async (credential: VerifiableCredential | verifiableJwt | string) : Promise<gs1RulesResult> => {
+    // Normalize the credential to handle JWT strings and verifiableJwt types
+    const normalizedCredential = normalizeCredential(credential);
 
-    const verifyStatus = credential.id === "mockCredentialId_Fail" ? false : true;
+    const verifyStatus = normalizedCredential.id === "mockCredentialId_Fail" ? false : true;
     const errors: gs1CredentialValidationRule[] = [];
     if (!verifyStatus) {
         errors.push({code: "MOCK173", rule: "Mock Rule"})
@@ -26,18 +29,18 @@ export const mock_checkExternalCredential: verifyExternalCredential = async (cre
 }
 
 // Mock - Resolver Callback Function to Load JSON Schema for GS1 Credential Validation
-export const mock_jsonSchemaLoader: jsonSchemaLoader = (schemaId: string) : Buffer => {
+export const mock_jsonSchemaLoader: jsonSchemaLoader = (schemaId: string) : Uint8Array => {
 
     if (schemaId === "https://id.gs1.org/vc/schema/v1/companyprefix") {
         const jsonSchema = JSON.stringify(mock_gs1CompanyPrefixSchema);
-        return Buffer.from(jsonSchema);
+        return new Uint8Array(Buffer.from(jsonSchema));
     }
 
     if (schemaId === "https://id.gs1.org/vc/schema/v1/productdata") {
         const jsonSchema = JSON.stringify(mock_gs1ProductDataSchema);
-        return Buffer.from(jsonSchema);
+        return new Uint8Array(Buffer.from(jsonSchema));
     }
 
     // Return No Schema for unsupported schema types
-    return Buffer.from('');
+    return new Uint8Array(Buffer.from(''));
 }

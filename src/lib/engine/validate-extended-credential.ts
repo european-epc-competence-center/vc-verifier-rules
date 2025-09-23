@@ -4,11 +4,12 @@ import { CredentialSubjectSchema, gs1CredentialSchemaChain, propertyMetaData } f
 import { invalidGS1CredentialTypes, invalidRootCredentialType, unsupportedCredentialChain } from "./gs1-credential-errors.js";
 import { resolveExternalCredential } from "./resolve-external-credential.js";
 import { formateConsoleLog } from "../utility/console-logger.js";
-import { CredentialPresentation, VerifiableCredential, externalCredential, gs1RulesResult, verifyExternalCredential } from "../types.js";
+import { CredentialPresentation, VerifiableCredential, externalCredential, gs1RulesResult, verifiableJwt, verifyExternalCredential } from "../types.js";
+import { normalizeCredential } from "../utility/jwt-utils.js";
 
 // Metadata for the Credential Chain
 export type credentialChainMetaData = {
-    credential: VerifiableCredential;
+    credential: VerifiableCredential | verifiableJwt | string;
     inPresentation: boolean;
     schema: gs1CredentialSchemaChain;
     credentialSubjectSchema: CredentialSubjectSchema | unknown;
@@ -70,11 +71,13 @@ export async function buildCredentialChain(externalCredentialLoader: externalCre
 // - Validate Credential Subject between parent and child extended credentials (See GS1 Data Model for More Details)
 export async function validateCredentialChain(externalCredentialVerification: verifyExternalCredential, credentialChain: credentialChainMetaData, validateChain: boolean) : Promise<gs1RulesResult> {
 
-    const credential: VerifiableCredential = credentialChain.credential
+    const credential = credentialChain.credential
+    const decodedCredential: VerifiableCredential = normalizeCredential(credential);
     const credentialSchema: gs1CredentialSchemaChain = credentialChain.schema;
     const credentialSchemaSubject: propertyMetaData | undefined = credentialSchema.extendsCredentialType;
-    const extendedCredential: VerifiableCredential | undefined = credentialChain.extendedCredentialChain?.credential;
-    const gs1CredentialCheck: gs1RulesResult = { credentialId: credential.id, credentialName: credentialSchema.title, verified: true, errors: []};
+    const extendedCredential = credentialChain.extendedCredentialChain?.credential;
+    const decodedExtendedCredential: VerifiableCredential | undefined = extendedCredential ? normalizeCredential(extendedCredential) : undefined;
+    const gs1CredentialCheck: gs1RulesResult = { credentialId: decodedCredential.id, credentialName: credentialSchema.title, verified: true, errors: []};
 
     if (!credentialChain.inPresentation) {
         const checkCredentialResult = await externalCredentialVerification(credentialChain.credential);
@@ -85,12 +88,12 @@ export async function validateCredentialChain(externalCredentialVerification: ve
     }
 
     // When there is no extended credential exit out of the chain
-    if (!extendedCredential) {
+    if (!decodedExtendedCredential) {
         return gs1CredentialCheck;
     }
 
     // TODD: Clean Up Code
-    const extendedCredentialSchema = getCredentialRuleSchemaChain(extendedCredential);
+    const extendedCredentialSchema = getCredentialRuleSchemaChain(decodedExtendedCredential);
     const extendedCredentialType = extendedCredentialSchema.title;
 
     // Check if Parent is Supported Type
@@ -100,7 +103,7 @@ export async function validateCredentialChain(externalCredentialVerification: ve
     }
 
     // Check if Child is Supported Type
-    const credentialType = getCredentialType(credential.type as string[])
+    const credentialType = getCredentialType(decodedCredential.type as string[])
 
     const childIsValid = extendedCredentialSchema?.childCredential?.type.includes(credentialType.name)
     if (!childIsValid) {
@@ -140,7 +143,7 @@ export async function validateCredentialChain(externalCredentialVerification: ve
         if (!credentialChain.extendedCredentialChain?.extendedCredentialChain.inPresentation) {
             const resolvedCredentialMetaData = credentialChain.extendedCredentialChain?.extendedCredentialChain;
             gs1CredentialCheck.resolvedCredential =  { 
-                credentialId: resolvedCredentialMetaData?.credential?.id, 
+                credentialId: normalizeCredential(resolvedCredentialMetaData?.credential)?.id, 
                 credentialName: resolvedCredentialMetaData?.schema?.title, 
                 verified: validateExtendedCredentialResult.verified, 
                 errors: validateExtendedCredentialResult.errors
@@ -169,7 +172,7 @@ export async function validateCredentialChain(externalCredentialVerification: ve
             if (!credentialChain.extendedCredentialChain.inPresentation) {
                 const resolvedCredentialMetaData = credentialChain.extendedCredentialChain;
                 gs1CredentialCheck.resolvedCredential =  { 
-                    credentialId: resolvedCredentialMetaData?.credential?.id, 
+                    credentialId: normalizeCredential(resolvedCredentialMetaData?.credential)?.id, 
                     credentialName: resolvedCredentialMetaData?.schema?.title, 
                     verified: validateExtendedCredentialResult.verified, 
                     errors: validateExtendedCredentialResult.errors

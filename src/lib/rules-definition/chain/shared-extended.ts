@@ -1,11 +1,12 @@
 import { invalidIssueSubject } from "../../engine/gs1-credential-errors.js";
 import { gs1CredentialValidationRuleResult } from "../../gs1-rules-types.js";
-import { CredentialSubject, VerifiableCredential } from "../../types.js";
+import { CredentialSubject, VerifiableCredential, verifiableJwt } from "../../types.js";
+import { normalizeCredential } from "../../utility/jwt-utils.js";
 
 export type credentialChainIssuers = {
-    dataCredential?: VerifiableCredential;
-    keyCredential?: VerifiableCredential;
-    companyPrefix?: VerifiableCredential;
+    dataCredential?: VerifiableCredential | verifiableJwt | string;
+    keyCredential?: VerifiableCredential | verifiableJwt | string;
+    companyPrefix?: VerifiableCredential | verifiableJwt | string;
 }
 
 // Return Issue ID (DID) for a verifiable credential.
@@ -59,10 +60,10 @@ export function checkCredentialChainIssuers(credentialToCheck: credentialChainIs
         return false;
     }
 
-    const organizationCredentialIssuer = getCredentialIssuer(credentialToCheck.dataCredential);
-    const keyCredentialIssuer = getCredentialIssuer(credentialToCheck.keyCredential);
-    const companyPrefixCredentialIssuer = getCredentialIssuer(credentialToCheck.companyPrefix);
-    const companyPrefixSubjectID = credentialToCheck.companyPrefix.credentialSubject.id;
+    const organizationCredentialIssuer = getCredentialIssuer(normalizeCredential(credentialToCheck.dataCredential));
+    const keyCredentialIssuer = getCredentialIssuer(normalizeCredential(credentialToCheck.keyCredential));
+    const companyPrefixCredentialIssuer = getCredentialIssuer(normalizeCredential(credentialToCheck.companyPrefix));
+    const companyPrefixSubjectID = normalizeCredential(credentialToCheck.companyPrefix)?.credentialSubject.id;
 
     if (!organizationCredentialIssuer || !keyCredentialIssuer || !companyPrefixCredentialIssuer || !companyPrefixSubjectID) {
         return false;

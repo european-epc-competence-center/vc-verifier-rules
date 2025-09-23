@@ -1,10 +1,11 @@
 import { genericCredentialSchema } from "./rules-schema/genericCredentialSchema.js";
 import { getCredentialRuleSchema } from "./get-credential-type.js";
 import { buildCredentialChain,  validateCredentialChain } from "./engine/validate-extended-credential.js";
-import { CredentialPresentation, gs1RulesResult, gs1RulesResultContainer, gs1ValidatorRequest, VerifiableCredential, VerifiablePresentation } from "./types.js";
+import { CredentialPresentation, gs1RulesResult, gs1RulesResultContainer, gs1ValidatorRequest, VerifiableCredential, VerifiablePresentation, verifiableJwt } from "./types.js";
 import { errorResolveCredentialCode } from "./engine/gs1-credential-errors.js";
 import { checkSchema } from "./schema/validate-schema.js";
 import { resolveExternalCredential } from "./engine/resolve-external-credential.js";
+import { normalizeCredential, normalizePresentation } from "./utility/jwt-utils.js";
 
 // Verify the credential and ensure it follows the GS1 level four rules.
 // - validatorRequest: Request Objetct with callback fuctions for resolving and verifying credentials
@@ -12,11 +13,14 @@ import { resolveExternalCredential } from "./engine/resolve-external-credential.
 // - credential : Verifiable Credential to be verified
 // - When fullJsonSchemaValidationOn is true will Validate full GS1 JSON Schema
 // - When fullJsonSchemaValidationOn is false will Validate only validate GS1 Custom Rules and Root of Trust credential chain
-async function checkGS1Credentials(validatorRequest: gs1ValidatorRequest, verifiablePresentation: CredentialPresentation, credential: VerifiableCredential) : Promise<gs1RulesResult> {
+async function checkGS1Credentials(validatorRequest: gs1ValidatorRequest, verifiablePresentation: CredentialPresentation | verifiableJwt | string, credential: VerifiableCredential | verifiableJwt | string) : Promise<gs1RulesResult> {
 
-    const credentialSubject = credential?.credentialSubject;
+    const decodedCredential: VerifiableCredential = normalizeCredential(credential);
+    const decodedPresentation: CredentialPresentation = normalizePresentation(verifiablePresentation);
 
-    if (!credential || !credentialSubject) { 
+    const credentialSubject = decodedCredential?.credentialSubject;
+
+    if (!decodedCredential || !credentialSubject) { 
         throw new Error("No Credential in Presentation");
     }
 
@@ -28,23 +32,23 @@ async function checkGS1Credentials(validatorRequest: gs1ValidatorRequest, verifi
     const externalCredentialVerification = validatorRequest.gs1DocumentResolver.externalCredentialVerification;
     const jsonSchemaLoader = validatorRequest.gs1DocumentResolver.externalJsonSchemaLoader;
 
-    const credentialSchema = getCredentialRuleSchema(jsonSchemaLoader, credential, validatorRequest.fullJsonSchemaValidationOn);
+    const credentialSchema = getCredentialRuleSchema(jsonSchemaLoader, decodedCredential, validatorRequest.fullJsonSchemaValidationOn);
 
     // Return verified when non GS1 Credential
     if (credentialSchema.$id === genericCredentialSchema.$id) { 
-        return { credentialId : credential.id, credentialName: "unknown", verified: true, errors: []};
+        return { credentialId : decodedCredential.id, credentialName: "unknown", verified: true, errors: []};
     }
 
-    const gs1CredentialCheck: gs1RulesResult = { credentialId : credential.id, credentialName: credentialSchema.title ? credentialSchema.title : "unknown", verified: true, errors: []};
+    const gs1CredentialCheck: gs1RulesResult = { credentialId : decodedCredential.id, credentialName: credentialSchema.title ? credentialSchema.title : "unknown", verified: true, errors: []};
 
     // Enforce GS1 Credential JSON Schema Rules
-    const schemaCheckResult = await checkSchema(credentialSchema, credential);
+    const schemaCheckResult = await checkSchema(credentialSchema, decodedCredential);
 
     if (!schemaCheckResult.verified) { 
        gs1CredentialCheck.errors = schemaCheckResult.errors;
    }
 
-    const credentialChain = await buildCredentialChain(externalCredentialLoader, verifiablePresentation, credential);
+    const credentialChain = await buildCredentialChain(externalCredentialLoader, decodedPresentation, decodedCredential);
     if (!credentialChain.error) {
         const extendedCredentialResult = await validateCredentialChain(externalCredentialVerification, credentialChain, true);
 
@@ -69,9 +73,10 @@ async function checkGS1Credentials(validatorRequest: gs1ValidatorRequest, verifi
 // - verifiableCredential : Verifiable Credential to be verified
 // - When fullJsonSchemaValidationOn is true will Validate full GS1 JSON Schema
 // - When fullJsonSchemaValidationOn is false will Validate only validate GS1 Custom Rules and Root of Trust credential chain
-export async function checkGS1CredentialWithoutPresentation(validatorRequest: gs1ValidatorRequest, verifiableCredential: VerifiableCredential) : Promise<gs1RulesResult> {
-    const verifiablePresentation = { verifiableCredential: verifiableCredential };
-    return await checkGS1Credentials(validatorRequest, verifiablePresentation, verifiablePresentation.verifiableCredential);
+export async function checkGS1CredentialWithoutPresentation(validatorRequest: gs1ValidatorRequest, verifiableCredential: VerifiableCredential | verifiableJwt | string) : Promise<gs1RulesResult> {
+    const decodedCredential: VerifiableCredential = normalizeCredential(verifiableCredential);
+    const verifiablePresentation = { verifiableCredential: decodedCredential };
+    return await checkGS1Credentials(validatorRequest, verifiablePresentation, verifiableCredential);
 }
 
 // Verify a verifiable credential presentation and ensure all credentials follows the GS1 level four rules.
@@ -79,9 +84,10 @@ export async function checkGS1CredentialWithoutPresentation(validatorRequest: gs
 // - verifiablePresentation: Verifiable Presentation containing the credential to be verified
 // - When fullJsonSchemaValidationOn is true will Validate full GS1 JSON Schema
 // - When fullJsonSchemaValidationOn is false will Validate only validate GS1 Custom Rules and Root of Trust credential chain
-export async function checkGS1CredentialPresentationValidation(validatorRequest: gs1ValidatorRequest, verifiablePresentation: VerifiablePresentation) :  Promise<gs1RulesResultContainer> {
+export async function checkGS1CredentialPresentationValidation(validatorRequest: gs1ValidatorRequest, verifiablePresentation: VerifiablePresentation | string) :  Promise<gs1RulesResultContainer> {
     const gs1CredentialCheck: gs1RulesResultContainer = { verified: true, result: []};
-    const presentationCredentials = verifiablePresentation.verifiableCredential;
+    const decodedPresentation: CredentialPresentation = normalizePresentation(verifiablePresentation);
+    const presentationCredentials = decodedPresentation.verifiableCredential;
 
     if (Array.isArray(presentationCredentials)) { 
         if (!validatorRequest.gs1DocumentResolver || !validatorRequest.gs1DocumentResolver.externalCredentialLoader) {
@@ -93,7 +99,7 @@ export async function checkGS1CredentialPresentationValidation(validatorRequest:
 
         for (const credential of presentationCredentials) {
             const extendedCredentialValue = credential.credentialSubject.extendsCredential;
-            const extendedCredentialResult = await resolveExternalCredential(externalCredentialLoader, verifiablePresentation, extendedCredentialValue);
+            const extendedCredentialResult = await resolveExternalCredential(externalCredentialLoader, decodedPresentation, extendedCredentialValue);
     
             // Add Resolved Credential to Presentation
             if (extendedCredentialResult?.credential) { 
@@ -103,7 +109,7 @@ export async function checkGS1CredentialPresentationValidation(validatorRequest:
             }
         }
 
-        const presentationToValidate = structuredClone(verifiablePresentation);
+        const presentationToValidate = structuredClone(decodedPresentation);
         presentationToValidate.verifiableCredential = presentationToValidateVC;
 
         for (const credential of presentationToValidate.verifiableCredential) {
@@ -115,7 +121,7 @@ export async function checkGS1CredentialPresentationValidation(validatorRequest:
             }
           }
     } else {
-        const credentialResult = await checkGS1Credentials(validatorRequest, verifiablePresentation, presentationCredentials);
+        const credentialResult = await checkGS1Credentials(validatorRequest, decodedPresentation, presentationCredentials);
     
         gs1CredentialCheck.result.push(credentialResult);
         if (!credentialResult.verified) {

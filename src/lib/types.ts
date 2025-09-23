@@ -10,10 +10,15 @@ export type Proof = {
 
 export type CredentialSubject = {
     id: string | URL;
-    licenseValue?: string;
-    keyAuthorization? : string;
+    licenseValue?: string | null;
+    alternativeLicenseValue?: string;
+    keyAuthorization?: string;
     extendsCredential?: string;
-    CredentialPresentation?: CredentialPresentation
+    CredentialPresentation?: CredentialPresentation;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    organization?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    product?: any;
 }
 
 // @context: is a complex object that can be an array that contains strings or dynamic objects
@@ -34,6 +39,8 @@ export interface credentialIssuer {
     id: string;
     type?: string;
 }
+
+export type Verifiable = sharedVerifiable | string;
 
 export interface extVerifiableCredential {
     issuer: string | credentialIssuer;
@@ -117,7 +124,7 @@ export interface externalCredential {
 }
 
 export interface verifyExternalCredential {
-    (credential: VerifiableCredential): Promise<gs1RulesResult>;
+    (credential: VerifiableCredential | verifiableJwt | string): Promise<gs1RulesResult>;
 }
 
 export interface jsonSchemaLoader {

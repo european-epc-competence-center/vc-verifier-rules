@@ -21,7 +21,7 @@ export type LicenseValueMinMax = {
 }
 
 export type subjectLicenseValue = {
-    licenseValue?: string | undefined | null;
+    licenseValue?: string | null;
     alternativeLicenseValue?: string;
 }
 

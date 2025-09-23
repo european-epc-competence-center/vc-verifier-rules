@@ -1,13 +1,16 @@
 import { getCredentialRuleSchema } from '../lib/get-credential-type';
 import { checkSchema } from '../lib/schema/validate-schema';
-import { getDecodedPresentation } from '../lib/utility/jwt-utils';
+import { normalizePresentation } from '../lib/utility/jwt-utils';
 import { mock_jsonSchemaLoader } from './mock-data';
 import { mockJoseCredentialPresentationProductJwt } from './mock-jose-credential';
 
 const getMockCredentialFromPresentation = function(presentation: string, indexValue: number) { 
-    const presentationToVerify = getDecodedPresentation(presentation);
-    const mockCredential = presentationToVerify.verifiableCredential[indexValue];
-    return mockCredential;
+    const presentationToVerify = normalizePresentation(presentation);
+    const credentials = presentationToVerify.verifiableCredential;
+    if (Array.isArray(credentials)) {
+        return credentials[indexValue];
+    }
+    return credentials; // Return single credential if not array
   };
   
 

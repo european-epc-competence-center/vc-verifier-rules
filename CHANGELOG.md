@@ -1,3 +1,9 @@
+## [2.1.0] - 2025-09-24
+
+- full jwt support on verification
+- adapt types to support jwt
+- add credential normalization supporting jwt decoding
+
 2.0.0 (2024-10-25)
 ---
 BREAKING: Major Upgrade to Library to support WC3 Verifiable Credentials 2.0 enveloping proof [JOSE](https://www.w3.org/TR/vc-jose-cose/) securing mechanisms. 

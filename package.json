@@ -1,6 +1,6 @@
 {
   "name": "@eecc/vc-verifier-rules",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "GS1 US Rules Verification Library for validating GS1 based verifiable credentials.",
   "main": "./dist/index.js",
   "types": ".dist/index.d.js",
@@ -29,7 +29,7 @@
     "postbuild": "copyfiles -u 1 \"public/json/**/**.json\" \"dist\"",
     "start": "tsc & npm run postbuild",
     "lint": "eslint ./src --fix",
-    "release": "node scripts/release.js",
+    "release": "node scripts/release.cjs",
     "release:patch": "npm run release patch",
     "release:minor": "npm run release minor",
     "release:major": "npm run release major"

@@ -1,5 +1,5 @@
 {
-  "name": "@gs1us/vc-verifier-rules",
+  "name": "@eecc/vc-verifier-rules",
   "version": "2.0.0",
   "description": "GS1 US Rules Verification Library for validating GS1 based verifiable credentials.",
   "main": "./dist/index.js",
@@ -28,10 +28,17 @@
     "dev": "nodemon",
     "postbuild": "copyfiles -u 1 \"public/json/**/**.json\" \"dist\"",
     "start": "tsc & npm run postbuild",
-    "lint": "eslint ./src --fix"
+    "lint": "eslint ./src --fix",
+    "release": "node scripts/release.js",
+    "release:patch": "npm run release patch",
+    "release:minor": "npm run release minor",
+    "release:major": "npm run release major"
   },
   "author": "GS1 US",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "dependencies": {
     "ajv": "8.12",
     "ajv-dist": "^8.17.1",

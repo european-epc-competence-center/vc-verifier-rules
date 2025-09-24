@@ -1,3 +1,8 @@
+## [2.1.5] - 2025-09-24
+
+- fix: apply credential normalization to external credentials
+
+
 ## [2.1.4] - 2025-09-24
 
 - fix build script to suite package

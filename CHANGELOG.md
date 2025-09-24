@@ -1,3 +1,8 @@
+## [2.1.1] - 2025-09-24
+
+- fix action trigger
+
+
 ## [2.1.0] - 2025-09-24
 
 - full jwt support on verification

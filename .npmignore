@@ -1,0 +1,58 @@
+# Source files
+src/
+tests/
+
+# Development files
+*.config.js
+*.config.ts
+tsconfig.json
+nodemon.json
+eslint.config.js
+jest.config.ts
+
+# Scripts and development tools
+scripts/
+
+# GitHub workflows
+.github/
+
+# Content (images, documentation assets not needed for package)
+content/
+
+# IDE and editor files
+.vscode/
+.vs/
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

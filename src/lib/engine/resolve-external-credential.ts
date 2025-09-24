@@ -1,5 +1,6 @@
 import { resolveCredentialResult } from "../rules-definition/types/gs1-credential-type.js";
 import { CredentialPresentation, VerifiableCredential, externalCredential } from "../types.js";
+import { normalizeCredential } from "../utility/jwt-utils.js";
 
 // Flag to show/hide errors when external credential can not be resolved
 const LOG_EXTERNAL_CREDENTIALS_ERRORS = false;
@@ -32,7 +33,7 @@ export async function resolveExternalCredential(externalCredentialLoader: extern
             throw new Error(`External Credential "${url}" can not be resolved.`);
         }
         const externalResult = await externalCredentialLoader(url);
-        return { credential: externalResult, inPresentation : false };
+        return { credential: normalizeCredential(externalResult), inPresentation : false };
 
     } catch(e) {
         if (LOG_EXTERNAL_CREDENTIALS_ERRORS) {

@@ -1,3 +1,8 @@
+## [2.1.4] - 2025-09-24
+
+- fix build script to suite package
+
+
 ## [2.1.3] - 2025-09-24
 
 - fix action trigger

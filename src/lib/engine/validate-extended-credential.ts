@@ -44,7 +44,7 @@ export async function buildCredentialChain(externalCredentialLoader: externalCre
             
             if (extendedCredentialResult.credential) {
                 // Walk the credential chain
-                const extendedCredentialChain = await buildCredentialChain(externalCredentialLoader, verifiablePresentation, extendedCredentialResult.credential);
+                const extendedCredentialChain = await buildCredentialChain(externalCredentialLoader, verifiablePresentation, normalizeCredential(extendedCredentialResult.credential));
 
                 // Once the root credential is reached, the extendedCredentialChain is undefined
                 if (extendedCredentialChain.credential) {

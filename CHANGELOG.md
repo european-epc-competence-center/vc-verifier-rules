@@ -1,3 +1,8 @@
+## [2.1.6] - 2025-09-25
+
+- move build chain cred loader normalization
+
+
 ## [2.1.5] - 2025-09-24
 
 - fix: apply credential normalization to external credentials

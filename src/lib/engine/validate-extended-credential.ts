@@ -23,8 +23,8 @@ const LOG_CREDENTIAL_CHAIN = false;
 // Build Credential Chain starting with the credential provided and resolve the credential chain until the root GS1 Credential
 export async function buildCredentialChain(externalCredentialLoader: externalCredential, verifiablePresentation: CredentialPresentation, credential: VerifiableCredential) : Promise<credentialChainMetaData> {
 
-    const credentialSubject = credential?.credentialSubject;
-    const credentialSchema = getCredentialRuleSchemaChain(credential);
+    const credentialSubject = normalizeCredential(credential)?.credentialSubject;
+    const credentialSchema = getCredentialRuleSchemaChain(normalizeCredential(credential));
 
     // inPresentation defaults to true to short circuit the credential chain lookup flow
     const credentialSubjectSchemaRule = credentialSchema;
@@ -44,7 +44,7 @@ export async function buildCredentialChain(externalCredentialLoader: externalCre
             
             if (extendedCredentialResult.credential) {
                 // Walk the credential chain
-                const extendedCredentialChain = await buildCredentialChain(externalCredentialLoader, verifiablePresentation, normalizeCredential(extendedCredentialResult.credential));
+                const extendedCredentialChain = await buildCredentialChain(externalCredentialLoader, verifiablePresentation, extendedCredentialResult.credential);
 
                 // Once the root credential is reached, the extendedCredentialChain is undefined
                 if (extendedCredentialChain.credential) {

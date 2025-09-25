@@ -1,3 +1,8 @@
+## [2.1.7] - 2025-09-25
+
+- mv normaize within cred chain build
+
+
 ## [2.1.6] - 2025-09-25
 
 - move build chain cred loader normalization

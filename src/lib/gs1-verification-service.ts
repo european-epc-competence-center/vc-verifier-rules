@@ -3,7 +3,6 @@ import { getCredentialRuleSchema } from "./get-credential-type.js";
 import { buildCredentialChain,  validateCredentialChain } from "./engine/validate-extended-credential.js";
 import { CredentialPresentation, gs1RulesResult, gs1RulesResultContainer, gs1ValidatorRequest, VerifiableCredential, VerifiablePresentation, verifiableJwt } from "./types.js";
 import { errorResolveCredentialCode } from "./engine/gs1-credential-errors.js";
-import { checkSchema } from "./schema/validate-schema.js";
 import { resolveExternalCredential } from "./engine/resolve-external-credential.js";
 import { normalizeCredential, normalizePresentation } from "./utility/jwt-utils.js";
 

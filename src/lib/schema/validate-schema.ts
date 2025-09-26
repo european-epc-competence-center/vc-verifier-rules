@@ -28,7 +28,7 @@ export async function checkSchema(schemaToValidate: gs1CredentialSchema, credent
       if (jsonSchemaError.isGS1Error && jsonSchemaError.gs1Rule !== undefined) {
         gs1CredentialCheck.errors.push(jsonSchemaError.gs1Rule);
       } else {
-        const jsonSchemaErrorRule = { code: errorResolveCredentialCode, rule: `${error.instancePath} ${error.message}`};
+        const jsonSchemaErrorRule = { code: errorResolveCredentialCode, rule: `${error.instancePath} ${error.message}`, credentialId: credential.id };
         gs1CredentialCheck.errors.push(jsonSchemaErrorRule);
       }
     });

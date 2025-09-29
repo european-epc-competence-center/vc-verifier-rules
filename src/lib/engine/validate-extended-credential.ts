@@ -22,7 +22,7 @@ export type credentialChainMetaData = {
 const LOG_CREDENTIAL_CHAIN = false;
 
 // Build Credential Chain starting with the credential provided and resolve the credential chain until the root GS1 Credential
-export async function buildCredentialChain(externalCredentialLoader: externalCredential, verifiablePresentation: CredentialPresentation, credential: VerifiableCredential) : Promise<credentialChainMetaData> {
+export async function buildCredentialChain(externalCredentialLoader: externalCredential, verifiablePresentation: CredentialPresentation, credential: VerifiableCredential | verifiableJwt | string) : Promise<credentialChainMetaData> {
 
     const credentialSubject = normalizeCredential(credential)?.credentialSubject;
     const credentialSchema = getCredentialRuleSchemaChain(normalizeCredential(credential));

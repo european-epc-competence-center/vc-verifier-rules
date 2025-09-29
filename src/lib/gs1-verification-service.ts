@@ -40,7 +40,7 @@ async function checkGS1Credentials(validatorRequest: gs1ValidatorRequest, verifi
 
     const gs1CredentialCheck: gs1RulesResult = { credentialId : decodedCredential.id, credentialName: credentialSchema.title ? credentialSchema.title : "unknown", verified: true, errors: []};
 
-    const credentialChain = await buildCredentialChain(externalCredentialLoader, decodedPresentation, decodedCredential);
+    const credentialChain = await buildCredentialChain(externalCredentialLoader, decodedPresentation, credential);
     if (!credentialChain.error) {
         const extendedCredentialResult = await validateCredentialChain(externalCredentialVerification, credentialChain, true, jsonSchemaLoader, validatorRequest.fullJsonSchemaValidationOn);
 

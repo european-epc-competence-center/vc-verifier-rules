@@ -70,7 +70,7 @@ export async function buildCredentialChain(externalCredentialLoader: externalCre
 // GS1 Credential chain requires validation between different credential types (See GS1 Data Model for More Details)
 // - Validate Credential Types between parent and child extended credentials
 // - Validate Credential Subject between parent and child extended credentials (See GS1 Data Model for More Details)
-export async function validateCredentialChain(externalCredentialVerification: verifyExternalCredential, credentialChain: credentialChainMetaData, validateChain: boolean, jsonSchemaLoader?: jsonSchemaLoader, fullJsonSchemaValidationOn: boolean = true) : Promise<gs1RulesResult> {
+export async function validateCredentialChain(externalCredentialVerification: verifyExternalCredential, credentialChain: credentialChainMetaData, validateChain: boolean, jsonSchemaLoader: jsonSchemaLoader, fullJsonSchemaValidationOn: boolean = true) : Promise<gs1RulesResult> {
 
     const credential = credentialChain.credential
     const decodedCredential: VerifiableCredential = normalizeCredential(credential);
@@ -88,14 +88,12 @@ export async function validateCredentialChain(externalCredentialVerification: ve
         }
     }
 
-    // Validate schema for credentials in the chain (if schema loader is provided)
-    if (jsonSchemaLoader) {
-        const credentialSchema = getCredentialRuleSchema(jsonSchemaLoader, decodedCredential, fullJsonSchemaValidationOn);
-        const schemaCheckResult = await checkSchema(credentialSchema, decodedCredential);
-        
-        if (!schemaCheckResult.verified) {
-            gs1CredentialCheck.errors = gs1CredentialCheck.errors.concat(schemaCheckResult.errors);
-        }
+    // Validate schema for each credential in the chain
+    const credentialJsonSchema = getCredentialRuleSchema(jsonSchemaLoader, decodedCredential, fullJsonSchemaValidationOn);
+    const schemaCheckResult = await checkSchema(credentialJsonSchema, decodedCredential);
+    
+    if (!schemaCheckResult.verified) {
+        gs1CredentialCheck.errors = gs1CredentialCheck.errors.concat(schemaCheckResult.errors);
     }
 
     // When there is no extended credential exit out of the chain

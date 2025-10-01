@@ -1,3 +1,8 @@
+## [2.2.1] - 2025-10-01
+
+- apply business rule validation on entire chain
+
+
 ## [2.2.0] - 2025-10-01
 
 - ensure full schema validation on entire chain

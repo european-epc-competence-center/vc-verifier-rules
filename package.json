@@ -1,6 +1,6 @@
 {
   "name": "@eecc/vc-verifier-rules",
-  "version": "2.1.7",
+  "version": "2.2.0",
   "description": "GS1 US Rules Verification Library for validating GS1 based verifiable credentials.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

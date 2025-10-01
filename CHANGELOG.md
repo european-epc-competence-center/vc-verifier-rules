@@ -1,3 +1,8 @@
+## [2.2.0] - 2025-10-01
+
+- ensure full schema validation on entire chain
+
+
 ## [2.1.7] - 2025-09-25
 
 - mv normaize within cred chain build

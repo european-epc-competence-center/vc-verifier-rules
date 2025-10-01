@@ -3,7 +3,6 @@ import { getCredentialRuleSchema } from "./get-credential-type.js";
 import { buildCredentialChain,  validateCredentialChain } from "./engine/validate-extended-credential.js";
 import { CredentialPresentation, gs1RulesResult, gs1RulesResultContainer, gs1ValidatorRequest, VerifiableCredential, VerifiablePresentation, verifiableJwt } from "./types.js";
 import { errorResolveCredentialCode } from "./engine/gs1-credential-errors.js";
-import { checkSchema } from "./schema/validate-schema.js";
 import { resolveExternalCredential } from "./engine/resolve-external-credential.js";
 import { normalizeCredential, normalizePresentation } from "./utility/jwt-utils.js";
 
@@ -41,16 +40,9 @@ async function checkGS1Credentials(validatorRequest: gs1ValidatorRequest, verifi
 
     const gs1CredentialCheck: gs1RulesResult = { credentialId : decodedCredential.id, credentialName: credentialSchema.title ? credentialSchema.title : "unknown", verified: true, errors: []};
 
-    // Enforce GS1 Credential JSON Schema Rules
-    const schemaCheckResult = await checkSchema(credentialSchema, decodedCredential);
-
-    if (!schemaCheckResult.verified) { 
-       gs1CredentialCheck.errors = schemaCheckResult.errors;
-   }
-
-    const credentialChain = await buildCredentialChain(externalCredentialLoader, decodedPresentation, decodedCredential);
+    const credentialChain = await buildCredentialChain(externalCredentialLoader, decodedPresentation, credential);
     if (!credentialChain.error) {
-        const extendedCredentialResult = await validateCredentialChain(externalCredentialVerification, credentialChain, true);
+        const extendedCredentialResult = await validateCredentialChain(externalCredentialVerification, credentialChain, true, jsonSchemaLoader, validatorRequest.fullJsonSchemaValidationOn);
 
         gs1CredentialCheck.resolvedCredential = extendedCredentialResult.resolvedCredential;
         if (!extendedCredentialResult.verified) {

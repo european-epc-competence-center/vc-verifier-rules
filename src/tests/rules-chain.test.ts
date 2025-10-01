@@ -3,6 +3,7 @@ import { buildCredentialChain, credentialChainMetaData, validateCredentialChain 
 import { CredentialSubjectSchema } from '../lib/rules-schema/rules-schema-types';
 import { externalCredential, gs1CredentialValidationRule, gs1RulesResult, VerifiableCredential, verifyExternalCredential, verifiableJwt } from '../lib/types';
 import { mockCompanyPrefixCredential, mockGenericCredential, mockPrefixLicenseCredential, mockPresentationParty } from './mock-credential';
+import { mock_jsonSchemaLoader } from './mock-data';
 import { validateExtendedCompanyPrefixCredential } from '../lib/rules-definition/chain/validate-extended-company-prefix';
 import { validateExtendedKeyDataCredential } from '../lib/rules-definition/chain/validate-extended-data-key';
 import { compareLicenseValue } from '../lib/rules-definition/chain/shared-extended';
@@ -112,7 +113,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
         const mockPresentation  = {...mockPresentationParty, verifiableCredential: [mockCompanyPrefixCredential]};
         const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentation, mockCompanyPrefixCredential);
 
-        const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true);
+        const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true, mock_jsonSchemaLoader, true);
         expect(result.verified).toBe(true);
     })
     
@@ -125,7 +126,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
         // Mock Overrides for Testing Different Scenarios
         resultBuildChain.inPresentation = false;
 
-        const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true);
+        const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true, mock_jsonSchemaLoader, true);
         expect(result.verified).toBe(false);
     })
 
@@ -140,7 +141,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
             schemaSubject.extendsCredentialType.type = ["mock"];
         }
 
-        const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true);
+        const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true, mock_jsonSchemaLoader, true);
         expect(result.verified).toBe(false);
     })
 
@@ -152,7 +153,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
         mockPresentation.verifiableCredential[0].type = ["mock"];
 
         const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentation, mockCompanyPrefixCredential);
-        const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true);
+        const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true, mock_jsonSchemaLoader, true);
         expect(result.verified).toBe(false);
     })
     

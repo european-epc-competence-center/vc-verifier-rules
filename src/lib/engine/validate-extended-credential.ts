@@ -149,7 +149,7 @@ export async function validateCredentialChain(externalCredentialVerification: ve
   
     // Walk Up Credential Chain until we reach the root credential
     if (credentialChain.extendedCredentialChain?.extendedCredentialChain) {
-        const validateExtendedCredentialResult = await validateCredentialChain(externalCredentialVerification, credentialChain.extendedCredentialChain, false, jsonSchemaLoader, fullJsonSchemaValidationOn);
+        const validateExtendedCredentialResult = await validateCredentialChain(externalCredentialVerification, credentialChain.extendedCredentialChain, true, jsonSchemaLoader, fullJsonSchemaValidationOn);
 
         // When Resolve VC is not in the presentation add to the output
         if (!credentialChain.extendedCredentialChain?.extendedCredentialChain.inPresentation) {
@@ -178,7 +178,7 @@ export async function validateCredentialChain(externalCredentialVerification: ve
         }
 
         if (credentialChain.extendedCredentialChain && credentialChain.extendedCredentialChain.credentialSubjectSchema) {
-            const validateExtendedCredentialResult = await validateCredentialChain(externalCredentialVerification, credentialChain.extendedCredentialChain, false, jsonSchemaLoader, fullJsonSchemaValidationOn);
+            const validateExtendedCredentialResult = await validateCredentialChain(externalCredentialVerification, credentialChain.extendedCredentialChain, true, jsonSchemaLoader, fullJsonSchemaValidationOn);
 
             // When Resolve VC is not in the presentation add to the output
             if (!credentialChain.extendedCredentialChain.inPresentation) {

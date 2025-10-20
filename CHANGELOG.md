@@ -1,3 +1,8 @@
+## [Unreleased]
+
+- fix env var read for gs1 root of trust
+
+
 ## [2.3.0] - 2025-10-20
 
 - make gs1 root of trust configurable with default

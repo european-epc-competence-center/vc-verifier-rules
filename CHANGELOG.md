@@ -1,3 +1,7 @@
+## [Unreleased]
+
+- make gs1 root of trust configurable with default
+
 ## [2.2.0] - 2025-10-01
 
 - ensure full schema validation on entire chain

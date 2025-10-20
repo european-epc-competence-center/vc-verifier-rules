@@ -6,7 +6,7 @@ import { checkIssuerToSubjectId, checkIssuerToSubjectId_schema, compareLicenseVa
 import { normalizeCredential } from "../../utility/jwt-utils.js";
 
 // License Prefix Credential Must be issued by GS1 Global
-const GS1_GLOBAL_DID = "did:web:id.gs1.org";
+const GS1_GLOBAL_DID = process.env.GS1_GLOBAL_DID || "did:web:id.gs1.org";
 
 // Compare company prefix license to prefix license value to validate the license value starts with prefix license value
 // Developer Notes: CredentialSubject is defined as any because the credential subject is dynamic based on JSON-LD for a credential

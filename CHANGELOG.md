@@ -1,4 +1,4 @@
-## [Unreleased]
+## [2.3.1] - 2025-10-20
 
 - fix env var read for gs1 root of trust
 

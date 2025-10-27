@@ -163,9 +163,9 @@ export async function validateCredentialChain(externalCredentialVerification: ve
             };
         }
 
-        // Add Errors to Result - will be bubbled up the chain to the child credential result
+        // Propagate verification status but keep errors isolated to their source credential
         if (!validateExtendedCredentialResult.verified) {
-            gs1CredentialCheck.errors = gs1CredentialCheck.errors.concat(validateExtendedCredentialResult.errors);
+            gs1CredentialCheck.verified = false;
         }
     } else {
 
@@ -193,10 +193,9 @@ export async function validateCredentialChain(externalCredentialVerification: ve
                 };
             }
 
-            // Add Errors to Result - will be bubbled up the chain to the child credential result
+            // Propagate verification status but keep errors isolated to their source credential
             if (!validateExtendedCredentialResult.verified) {
                 gs1CredentialCheck.verified = false;
-                gs1CredentialCheck.errors = gs1CredentialCheck.errors.concat(validateExtendedCredentialResult.errors);
             }
 
         }

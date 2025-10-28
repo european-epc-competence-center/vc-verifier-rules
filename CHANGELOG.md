@@ -1,6 +1,7 @@
-## [Unreleased]
+## [2.4.0] - 2025-10-28
 
 - improve credential chain validation output and error reporting
+
 
 ## [2.3.1] - 2025-10-20
 

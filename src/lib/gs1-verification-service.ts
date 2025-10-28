@@ -46,6 +46,7 @@ async function checkGS1Credentials(validatorRequest: gs1ValidatorRequest, verifi
 
         gs1CredentialCheck.resolvedCredential = extendedCredentialResult.resolvedCredential;
         if (!extendedCredentialResult.verified) {
+            gs1CredentialCheck.verified = false;
             gs1CredentialCheck.errors = gs1CredentialCheck.errors.concat(extendedCredentialResult.errors);
         }
     } else {

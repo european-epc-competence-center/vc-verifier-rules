@@ -24,6 +24,7 @@ export const dataMissingToValidateCredentialChain =  { code: "GS1-300", rule: 'O
 export const dataMismatchBetweenPartyDataKeyCredential =  { code: "GS1-310", rule: 'The partyGLN does not match the GLN in the Key Credential.'};
 export const dataMismatchBetweenDataKeyCredential =  { code: "GS1-320", rule: 'The data credential GS1 Digital Link does not match the Id in the Key Credential.'};
 export const unsupportedCredentialChain =  { code: "GS1-330", rule: 'The credential chain is not supported.'};
+export const validationChainFailure = { code: "GS1-400", rule: 'Extended Credential must verify as well.' }
 
 // Verifier Error Codes
 export const verificationErrorCode = "VC-100";

@@ -1,7 +1,7 @@
 import { rulesEngineManager } from "../rules-definition/rules-manager.js";
 import { getCredentialRuleSchemaChain, getCredentialType, getCredentialRuleSchema, GS1_PREFIX_LICENSE_CREDENTIAL } from "../get-credential-type.js";
 import { CredentialSubjectSchema, gs1CredentialSchemaChain, propertyMetaData } from "../rules-schema/rules-schema-types.js";
-import { invalidGS1CredentialTypes, invalidRootCredentialType, unsupportedCredentialChain } from "./gs1-credential-errors.js";
+import { invalidGS1CredentialTypes, invalidRootCredentialType, unsupportedCredentialChain, validationChainFailure } from "./gs1-credential-errors.js";
 import { resolveExternalCredential } from "./resolve-external-credential.js";
 import { formateConsoleLog } from "../utility/console-logger.js";
 import { CredentialPresentation, VerifiableCredential, externalCredential, gs1RulesResult, verifiableJwt, verifyExternalCredential, jsonSchemaLoader } from "../types.js";
@@ -166,6 +166,7 @@ export async function validateCredentialChain(externalCredentialVerification: ve
         // Propagate verification status but keep errors isolated to their source credential
         if (!validateExtendedCredentialResult.verified) {
             gs1CredentialCheck.verified = false;
+            gs1CredentialCheck.errors.push(validationChainFailure);
         }
     } else {
 
@@ -196,6 +197,7 @@ export async function validateCredentialChain(externalCredentialVerification: ve
             // Propagate verification status but keep errors isolated to their source credential
             if (!validateExtendedCredentialResult.verified) {
                 gs1CredentialCheck.verified = false;
+                gs1CredentialCheck.errors.push(validationChainFailure);
             }
 
         }

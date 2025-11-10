@@ -1,3 +1,8 @@
+## [2.4.2] - 2025-11-10
+
+- update repository URL to EECC
+
+
 ## [2.4.0] - 2025-10-28
 
 - improve credential chain validation output and error reporting

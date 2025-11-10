@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gs1us-technology/vc-verifier-rules.git"
+    "url": "git+https://github.com/european-epc-competence-center/vc-verifier-rules.git"
   },
   "keywords": [
     "verifiable",

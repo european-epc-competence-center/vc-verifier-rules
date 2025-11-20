@@ -100,6 +100,40 @@ const getGS1JsonSchema = function(fullJsonSchemaValidationOn: boolean, standardS
     return schemaToValidate;
 }
 
+// This method handles breakwards compatibility for Verifiable Credential V1 JSON Schema Validation
+// Developer Notes: Current Assumption hasProof are Data Integrity Proof V1 Verifiable Credential
+const getGS1JsonSchemaForV1 = function(jsonSchema: gs1CredentialSchema) {
+
+    const {...v1Schema} = jsonSchema;
+    //const {properties, ...v1Schema} = jsonSchema
+    v1Schema["$id"] = jsonSchema["$id"] + "-V1";
+    v1Schema.required = [];
+    v1Schema.properties = {};
+    v1Schema.properties.credentialSubject = jsonSchema.properties.credentialSubject;
+    return v1Schema;
+}
+
+// Check if a credential has the V1 context URL
+const hasV1Context = function(credential: VerifiableCredential): boolean {
+    const v1ContextUrl = "https://www.w3.org/2018/credentials/v1";
+    
+    if (!credential['@context']) {
+        return false;
+    }
+
+    // @context can be a string, an array of strings, or an array containing strings and objects
+    const context = credential['@context'];
+    
+    if (typeof context === 'string') {
+        return context === v1ContextUrl;
+    }
+    
+    if (Array.isArray(context)) {
+        return context.some(item => item === v1ContextUrl);
+    }
+    
+    return false;
+}
 
 // Call the external JSON Schema Loader to get a GS1 Schema JSON
 const callResolverToGetJsonSchema = function(schemaLoader: jsonSchemaLoader, credentialType: gs1CredentialTypes) : gs1CredentialSchema {
@@ -136,17 +170,20 @@ export const getCredentialRuleSchema = function(schemaLoader: jsonSchemaLoader, 
     // Use Callback Resolver to Get JSON Schema for GS1 Credentials
     const credentialSchema = callResolverToGetJsonSchema(schemaLoader, credentialType);
   
+    // Fallback to V1 JSON Schema for Data Integrity Proof Credentials with V1 context
+    const starterSchema = credential.proof !== undefined && hasV1Context(credential) ? getGS1JsonSchemaForV1(credentialSchema) : credentialSchema;
+
     switch(credentialType.name) {
         case GS1_PREFIX_LICENSE_CREDENTIAL:
-           return getGS1JsonSchema(fullJsonSchemaValidationOn, credentialSchema, gs1AltLicenseValidationRules);
+           return getGS1JsonSchema(fullJsonSchemaValidationOn, starterSchema, gs1AltLicenseValidationRules);
         case GS1_COMPANY_PREFIX_LICENSE_CREDENTIAL:
-            return getGS1JsonSchema(fullJsonSchemaValidationOn, credentialSchema, gs1AltLicenseValidationRules)
+            return getGS1JsonSchema(fullJsonSchemaValidationOn, starterSchema, gs1AltLicenseValidationRules)
         case KEY_CREDENTIAL:
-            return getGS1JsonSchema(fullJsonSchemaValidationOn, credentialSchema, gs1DigitalLinkRules);
+            return getGS1JsonSchema(fullJsonSchemaValidationOn, starterSchema, gs1DigitalLinkRules);
         case ORGANIZATION_DATA_CREDENTIAL:
-            return getGS1JsonSchema(fullJsonSchemaValidationOn, credentialSchema, gs1DigitalLinkSameAsRules);
+            return getGS1JsonSchema(fullJsonSchemaValidationOn, starterSchema, gs1DigitalLinkSameAsRules);
         case PRODUCT_DATA_CREDENTIAL:
-            return getGS1JsonSchema(fullJsonSchemaValidationOn, credentialSchema, gs1DigitalLinkSameAsRules);
+            return getGS1JsonSchema(fullJsonSchemaValidationOn, starterSchema, gs1DigitalLinkSameAsRules);
         default:
             return genericCredentialSchema;
       }

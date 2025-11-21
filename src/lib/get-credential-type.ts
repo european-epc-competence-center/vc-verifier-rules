@@ -113,6 +113,27 @@ const getGS1JsonSchemaForV1 = function(jsonSchema: gs1CredentialSchema) {
     return v1Schema;
 }
 
+// Check if a credential has the V1 context URL
+const hasV1Context = function(credential: VerifiableCredential): boolean {
+    const v1ContextUrl = "https://www.w3.org/2018/credentials/v1";
+    
+    if (!credential['@context']) {
+        return false;
+    }
+
+    // @context can be a string, an array of strings, or an array containing strings and objects
+    const context = credential['@context'];
+    
+    if (typeof context === 'string') {
+        return context === v1ContextUrl;
+    }
+    
+    if (Array.isArray(context)) {
+        return context.some(item => item === v1ContextUrl);
+    }
+    
+    return false;
+}
 
 // Call the external JSON Schema Loader to get a GS1 Schema JSON
 const callResolverToGetJsonSchema = function(schemaLoader: jsonSchemaLoader, credentialType: gs1CredentialTypes) : gs1CredentialSchema {
@@ -148,10 +169,10 @@ export const getCredentialRuleSchema = function(schemaLoader: jsonSchemaLoader, 
 
     // Use Callback Resolver to Get JSON Schema for GS1 Credentials
     const credentialSchema = callResolverToGetJsonSchema(schemaLoader, credentialType);
-
-    // Fallback to V1 JSON Schema for Data Integrity Proof Credentials
-    const starterSchema = credential.proof !== undefined ? getGS1JsonSchemaForV1(credentialSchema) : credentialSchema;
   
+    // Fallback to V1 JSON Schema for Data Integrity Proof Credentials with V1 context
+    const starterSchema = credential.proof !== undefined && hasV1Context(credential) ? getGS1JsonSchemaForV1(credentialSchema) : credentialSchema;
+
     switch(credentialType.name) {
         case GS1_PREFIX_LICENSE_CREDENTIAL:
            return getGS1JsonSchema(fullJsonSchemaValidationOn, starterSchema, gs1AltLicenseValidationRules);
@@ -166,5 +187,4 @@ export const getCredentialRuleSchema = function(schemaLoader: jsonSchemaLoader, 
         default:
             return genericCredentialSchema;
       }
-
 }

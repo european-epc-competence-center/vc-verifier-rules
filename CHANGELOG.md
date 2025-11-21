@@ -1,3 +1,9 @@
+## [2.4.3] - 2025-11-21
+
+- do full schema validation for v2 data integrity credentials
+- backwards compatible with old v1 solution
+
+
 ## [2.4.2] - 2025-11-10
 
 - update repository URL to EECC

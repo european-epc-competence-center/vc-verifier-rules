@@ -1,3 +1,12 @@
+# Changelog
+
+
+## WIP
+
+- Support Key Credentials with Key Qualifiers according to https://gs1.github.io/GS1DigitalLicenses/#key-validation-rules
+  - Test for complete SGTIN Chain added
+- Bugfix in credential type recognition
+
 ## [2.4.3] - 2025-11-21
 
 - do full schema validation for v2 data integrity credentials

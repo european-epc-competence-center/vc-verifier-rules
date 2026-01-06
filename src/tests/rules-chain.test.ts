@@ -161,7 +161,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
         const mockKeyCredential = mockPresentationParty.verifiableCredential[1];
         const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentationParty, mockKeyCredential);
 
-        const result = await validateExtendedCompanyPrefixCredential("GS1CompanyPrefixLicenseCredential", resultBuildChain);
+        const result = await validateExtendedCompanyPrefixCredential("KeyCredential", resultBuildChain);
         expect(result.verified).toBe(true);
     })
 
@@ -170,7 +170,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
         const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentationParty, mockKeyCredential);
         resultBuildChain.extendedCredentialChain = undefined;
 
-        const result = await validateExtendedCompanyPrefixCredential("GS1CompanyPrefixLicenseCredential", resultBuildChain);
+        const result = await validateExtendedCompanyPrefixCredential("KeyCredential", resultBuildChain);
         expect(result.verified).toBe(false);
     })
 
@@ -179,7 +179,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
         const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentationParty, mockKeyCredential);
         resultBuildChain.extendedCredentialChain = undefined;
 
-        const result = await validateExtendedCompanyPrefixCredential("GS1CompanyPrefixLicenseCredential", resultBuildChain);
+        const result = await validateExtendedCompanyPrefixCredential("KeyCredential", resultBuildChain);
         expect(result.verified).toBe(false);
     })
 
@@ -191,7 +191,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
 
         const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentationParty, mockKeyCredential);
 
-        const result = await validateExtendedCompanyPrefixCredential("GS1CompanyPrefixLicenseCredential", resultBuildChain);
+        const result = await validateExtendedCompanyPrefixCredential("KeyCredential", resultBuildChain);
         expect(result.verified).toBe(false);
     })
 

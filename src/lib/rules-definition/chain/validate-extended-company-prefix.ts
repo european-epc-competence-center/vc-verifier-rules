@@ -1,6 +1,6 @@
 import { invalidExtendedCredentialMissing, invalidIssuer, invalidLicenseValueFormat } from "../../engine/gs1-credential-errors.js";
 import { credentialChainMetaData } from "../../engine/validate-extended-credential";
-import { gs1RulesResult, VerifiableCredential } from "../../types.js";
+import { gs1RulesResult, gs1CredentialTypes } from "../../types.js";
 import { parseGS1DigitalLink } from "../subject/check-credential-subject-Id-digital-link.js";
 import { gs1CompanyPrefixCredentialType } from "../types/gs1-company-prefix-type";
 import { gs1KeyCredentialType } from "../types/gs1-key-type";
@@ -10,7 +10,7 @@ import { getCredentialType, KEY_CREDENTIAL } from "../../get-credential-type.js"
 
 // Validates KeyCredential extending from GS1CompanyPrefixLicenseCredential or another KeyCredential
 // Implements GS1 spec rules K-7 (no qualifiers) and K-8 (with qualifiers like serial number)
-export async function validateExtendedCompanyPrefixCredential(credentialType: any, 
+export async function validateExtendedCompanyPrefixCredential(credentialType: string | gs1CredentialTypes, 
     credentialChain: credentialChainMetaData): Promise<gs1RulesResult> {
 
     // Handle both string and object credential types (for backwards compatibility)

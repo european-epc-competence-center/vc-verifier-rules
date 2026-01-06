@@ -49,7 +49,11 @@ export async function validateExtendedCompanyPrefixCredential(credentialType: st
 
         // K-8c: Primary key of P must equal PK (the base identifier without qualifiers)
         if (!parentKeyValue.parsedValue || !keyValue.parsedValue || 
-            parentKeyValue.parsedValue !== keyValue.parsedValue) {
+            parentKeyValue.parsedValue !== keyValue.parsedValue
+            || !parentKeyValue.isValid || !keyValue.isValid
+            || !parentKeyValue.type || !keyValue.type
+            || parentKeyValue.type !== keyValue.type
+        ) {
             gs1CredentialCheck.verified = false;
             gs1CredentialCheck.errors.push(invalidLicenseValueFormat);
         }

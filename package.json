@@ -28,6 +28,7 @@
     "dev": "nodemon",
     "start": "npm run build",
     "lint": "eslint ./src --fix",
+    "type-check": "tsc --noEmit",
     "release": "node scripts/release.cjs",
     "release:patch": "npm run release patch",
     "release:minor": "npm run release minor",

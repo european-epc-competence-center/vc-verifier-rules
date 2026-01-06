@@ -65,6 +65,8 @@ Added comprehensive test suite in `src/tests/example-chain.test.ts`:
 ## GS1 Digital Link Parsing
 
 The validation uses `parseGS1DigitalLink` from `check-credential-subject-Id-digital-link.ts`:
+- Uses official `digital-link.js` library for grammar validation
+- Performs check digit validation for GTIN (01), GLN (414), and partyGLN (417)
 - Extracts primary key from GS1 Digital Link URI
 - Identifies qualifiers (e.g., serial number in `21/test`)
 - Handles leading zeros in GTINs correctly via `compareLicenseValue`

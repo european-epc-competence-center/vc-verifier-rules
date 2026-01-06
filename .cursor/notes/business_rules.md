@@ -383,13 +383,15 @@ All GS1 validation errors use format: `GS1-XXX`
 
 #### Digital Link Validation
 **File**: `check-credential-subject-Id-digital-link.ts`  
-**Functions**: Digital link validation for id and sameAs
+**Functions**: Digital link validation for id and sameAs  
+**Library**: Uses `digital-link.js` for official GS1 Digital Link grammar validation
 
 **Rules**:
 1. Must be HTTPS URI
 2. Must use GS1 domain (id.gs1.org)
-3. Must have valid application identifier
-4. Must have valid key value
+3. Must have valid application identifier per GS1 Digital Link spec
+4. Must have valid key value structure
+5. Must have correct check digit for supported identifiers (GTIN, GLN, partyGLN)
 
 **Errors**: GS1-213, GS1-214
 

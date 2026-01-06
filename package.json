@@ -50,6 +50,7 @@
     "ajv-dist": "^8.17.1",
     "ajv-errors": "^3.0.0",
     "ajv-formats": "^3.0.1",
+    "digital-link.js": "^1.4.3",
     "i": "^0.3.7",
     "jest": "^29.7.0",
     "npm": "^10.8.2",

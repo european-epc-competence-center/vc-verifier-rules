@@ -260,10 +260,16 @@ https://id.gs1.org/{AI}/{KEY_VALUE}
 
 **File**: `src/lib/rules-definition/subject/check-credential-subject-Id-digital-link.ts`
 
+**Implementation**:
+- Uses `digital-link.js` library for official GS1 Digital Link grammar validation
+- Validates against GS1 Digital Link specification v1.4
+- Performs check digit validation for identifiers (GTIN, GLN, partyGLN)
+
 **Rules**:
 - Must be HTTPS
-- Must use recognized GS1 domain
+- Must use recognized GS1 domain  
 - Must have valid AI and value structure
+- Must have correct check digit for supported identifier types
 
 **Custom Ajv Keywords**: Defined in `ajv-gs1-extension.ts`
 - Validates during JSON Schema validation phase

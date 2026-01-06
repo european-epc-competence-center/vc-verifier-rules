@@ -19,6 +19,7 @@
 - [GS1 Credential Types](./gs1_credentials.md) - Supported credential types and chain hierarchy
 - [Business Rules](./business_rules.md) - GS1 validation rules and error codes
 - [GS1 Spec Validation Rules](./gs1_spec_validation_rules.md) - GS1 Digital Licenses spec compliance and gaps
+- [GS1 Digital Link Implementation](./gs1_digital_link_implementation.md) - Digital Link parsing, validation, and check digits
 - [KeyCredential Chains (K-8)](./key_credential_chains.md) - Serialized item support (SGTIN → GTIN)
 - [Testing](./testing.md) - Test structure and mock data
 
@@ -31,7 +32,11 @@
 ## Key Technical Details
 
 **Runtime**: Node.js v22.0.0+, TypeScript, ES Modules  
-**Main Dependencies**: Ajv (JSON Schema validation), jose (JWT handling)  
+**Main Dependencies**: 
+- Ajv (JSON Schema validation)
+- jose (JWT handling)
+- digital-link.js (GS1 Digital Link parsing and validation)
+
 **Build**: tsup for bundling, jest for testing  
 **W3C Standards**: Supports VC Data Model 1.1 and 2.0, JOSE enveloping proofs
 

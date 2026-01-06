@@ -1,3 +1,15 @@
+## [Unreleased]
+
+- Replace hand-written GS1 Digital Link parsing with `digital-link.js` library
+  - Improved validation using official GS1 Digital Link grammar (v1.4)
+  - Added comprehensive check digit validation for all GS1 identification keys:
+    - GTIN (01), ITIP (8006), GLN (414), partyGLN (417), SSCC (00)
+    - GRAI (8003), GSRN (8018), GDTI (253), GSIN (402), GCN (255)
+  - Support for all GS1 primary identifiers (GIAI, GSRNP, GINC, CPID, GMN)
+  - Fixed incorrect inclusion of GLN Extension (254) as primary identifier
+  - Enhanced TypeScript type definitions for Digital Link operations
+- Add `digital-link.js` as a dependency
+
 ## [2.5.0] - 2026-01-06
 
 - Support Key Credentials with Key Qualifiers according to https://gs1.github.io/GS1DigitalLicenses/#key-validation-rules

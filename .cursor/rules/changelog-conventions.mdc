@@ -11,13 +11,12 @@ alwaysApply: true
 ### WIP Section
 
 - Located at the top of the file after the title
-  - Format: `## WIP` followed by bullet point entries
+  - Format: `## [Unreleased]` followed by bullet point entries
   - This is where all unreleased changes should be documented!
 
 ## Entry Guidelines
 
 - Start each entry with a dash `-`
-- For issue references, place them at the start: `- 10469: fixed bug in...`
 - Group related changes together
 - Use backticks for code references: `` `methodName` ``
 - Use indentation for sub-details:

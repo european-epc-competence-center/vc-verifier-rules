@@ -1,4 +1,4 @@
-## [Unreleased]
+## [2.5.1] - 2026-01-06
 
 - Replace hand-written GS1 Digital Link parsing with `digital-link.js` library
   - Improved validation using official GS1 Digital Link grammar (v1.4)
@@ -19,6 +19,7 @@
   - Removed unnecessary packages (i, npm) from dependencies
   - Fixed security vulnerability in brace-expansion
 - Fix linting error in check-credential-subject-Id-digital-link.ts (unused error variable)
+
 
 ## [2.5.0] - 2026-01-06
 

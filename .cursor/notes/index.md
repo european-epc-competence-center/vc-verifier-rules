@@ -31,13 +31,14 @@
 
 ## Key Technical Details
 
-**Runtime**: Node.js v22.0.0+, TypeScript, ES Modules  
+**Runtime**: Node.js v22.0.0+, TypeScript 5.9.3, ES Modules  
 **Main Dependencies**: 
-- Ajv (JSON Schema validation)
+- Ajv 8.17 (JSON Schema validation)
 - jose (JWT handling)
-- digital-link.js (GS1 Digital Link parsing and validation)
+- digital-link.js 1.4.3 (GS1 Digital Link parsing and validation)
 
-**Build**: tsup for bundling, jest for testing  
+**Build**: tsup 8.5.1 for bundling, jest 30.2.0 for testing  
+**Linting**: ESLint 9.39.2 with typescript-eslint 8.52.0  
 **W3C Standards**: Supports VC Data Model 1.1 and 2.0, JOSE enveloping proofs
 
 ## Repository Structure Summary

@@ -9,6 +9,16 @@
   - Fixed incorrect inclusion of GLN Extension (254) as primary identifier
   - Enhanced TypeScript type definitions for Digital Link operations
 - Add `digital-link.js` as a dependency
+- Upgrade all dependencies to latest versions
+  - Updated TypeScript to 5.9.3 (from 5.0.2)
+  - Updated ESLint to 9.39.2 (from 8.57.0) with typescript-eslint 8.52.0 (from 5.61.0)
+  - Updated Jest to 30.2.0 (from 29.7.0) with ts-jest 29.4.6
+  - Updated tsup to 8.5.1 (from 6.7.0)
+  - Updated all type definitions and dev tools
+  - Moved build tools (jest, ts-node, tsup, typescript) from dependencies to devDependencies
+  - Removed unnecessary packages (i, npm) from dependencies
+  - Fixed security vulnerability in brace-expansion
+- Fix linting error in check-credential-subject-Id-digital-link.ts (unused error variable)
 
 ## [2.5.0] - 2026-01-06
 

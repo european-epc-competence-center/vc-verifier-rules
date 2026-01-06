@@ -190,7 +190,7 @@ export function parseGS1DigitalLink(value?: string | URL) : gs1DigitalLinkValue 
       parsedValue: identifierValue,
       otherUriElements: otherUriElements.length > 0 ? otherUriElements : undefined
     };
-  } catch (error) {
+  } catch {
     // If parsing fails, return invalid result
     return {
       isValid: false,

@@ -204,10 +204,11 @@ The implementation uses error codes GS1-XXX. Here's how spec rules map to implem
 - K-7c: Uses `compareLicenseValue()` in `compareLicenseLengthsToExtended()` (line 183-186)
 
 ### K-8 Rules (Key with qualifiers → Key)
-**File**: `validate-extended-company-prefix.ts`, chain recursion
-- K-8a: Uses `checkCredentialIssuers()` from `shared-extended.ts`
-- K-8b: Recursive `buildCredentialChain()` validates parent Key
-- K-8c: Digital link comparison in `validateExtendedKeyDataCredential()`
+**File**: `validate-extended-company-prefix.ts` (updated Jan 2026)
+- K-8a: Uses `checkCredentialIssuers()` from `shared-extended.ts` to verify issuer match
+- K-8b: Recursive `buildCredentialChain()` validates parent Key automatically
+- K-8c: Digital link parsing and primary key comparison (e.g., SGTIN → GTIN validation)
+- **IMPLEMENTATION NOTE**: KeyCredential → KeyCredential chains now fully supported for serialized items
 
 ### D-6, D-7, D-8 Rules (Data → Key via keyAuthorization)
 **File**: `validate-extended-data-key.ts`

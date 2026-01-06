@@ -1,6 +1,6 @@
 import { mockPrefixLicenseCredential } from "./mock-credential.js";
 import { externalCredential, gs1CredentialValidationRule, gs1RulesResult, jsonSchemaLoader, VerifiableCredential, verifyExternalCredential, verifiableJwt } from "../lib/types";
-import { mock_gs1CompanyPrefixSchema, mock_gs1ProductDataSchema } from "./mock-schema.js";
+import { mock_gs1CompanyPrefixSchema, mock_gs1ProductDataSchema, mock_gs1PrefixLicenseSchema, mock_gs1KeySchema } from "./mock-schema.js";
 import { normalizeCredential } from "../lib/utility/jwt-utils.js";
 
 // Test function to resolve mock credentials
@@ -31,8 +31,18 @@ export const mock_checkExternalCredential: verifyExternalCredential = async (cre
 // Mock - Resolver Callback Function to Load JSON Schema for GS1 Credential Validation
 export const mock_jsonSchemaLoader: jsonSchemaLoader = (schemaId: string) : Uint8Array => {
 
+    if (schemaId === "https://id.gs1.org/vc/schema/v1/prefix") {
+        const jsonSchema = JSON.stringify(mock_gs1PrefixLicenseSchema);
+        return new Uint8Array(Buffer.from(jsonSchema));
+    }
+
     if (schemaId === "https://id.gs1.org/vc/schema/v1/companyprefix") {
         const jsonSchema = JSON.stringify(mock_gs1CompanyPrefixSchema);
+        return new Uint8Array(Buffer.from(jsonSchema));
+    }
+
+    if (schemaId === "https://id.gs1.org/vc/schema/v1/key") {
+        const jsonSchema = JSON.stringify(mock_gs1KeySchema);
         return new Uint8Array(Buffer.from(jsonSchema));
     }
 

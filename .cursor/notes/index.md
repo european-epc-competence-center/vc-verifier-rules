@@ -19,6 +19,7 @@
 - [GS1 Credential Types](./gs1_credentials.md) - Supported credential types and chain hierarchy
 - [Business Rules](./business_rules.md) - GS1 validation rules and error codes
 - [GS1 Spec Validation Rules](./gs1_spec_validation_rules.md) - GS1 Digital Licenses spec compliance and gaps
+- [KeyCredential Chains (K-8)](./key_credential_chains.md) - Serialized item support (SGTIN → GTIN)
 - [Testing](./testing.md) - Test structure and mock data
 
 ### By Use Case

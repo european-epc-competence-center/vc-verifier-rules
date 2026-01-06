@@ -55,6 +55,88 @@ export const mock_gs1CompanyPrefixSchema = {
     }
   }
 
+export const mock_gs1PrefixLicenseSchema = {
+  "$id": "GS1-Prefix-Schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "title": "GS1PrefixLicenseCredential",
+  "description": "A GS1 Prefix License is issued by GS1 Global Office and allocated to a GS1 Member Organization or GS1 Global Office itself for the purpose of generating GS1 Company Prefixes or GS1 identification keys",
+  "type": "object",
+  "credentialType": "GS1PrefixLicenseCredential",
+  "properties": {
+    "credentialSubject": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "GS1 Member Organization Decentralized Identifier", 
+          "type": "string",
+          "format": "uri"
+        },
+        "organization": {
+          "title": "An Organization is any legal or physical entity involved at any point in any supply chain.",
+          "type": "object",
+          "properties": {
+            "gs1:partyGLN": {
+              "title": "13-digit GLN that is being used to identify a legal entity",
+              "type": "string",
+              "pattern": "^\\d{13}$"
+            },
+            "gs1:organizationName": {
+              "title": "The name of the organization expressed in text.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "gs1:partyGLN", "gs1:organizationName"
+          ]
+        },
+        "licenseValue": {
+          "type": "string",
+          "title": "GS1 Prefix License Value",
+          "pattern": "^\\d{2,4}$"
+        },
+        "alternativeLicenseValue": {
+          "title": "GS1 Prefix Alternative License Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id", "licenseValue", "organization"
+      ],
+      "additionalProperties": true
+    }
+  }
+}
+
+export const mock_gs1KeySchema = {
+  "$id": "GS1-Key-Schema",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "title": "KeyCredential",
+  "description": "The key credential indicates that something has been identified. It contains no data about what has been identified.",
+  "type": "object",
+  "properties": {
+    "credentialSubject": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "title": "The credential subject ID must be a GS1 Digital Link URI",
+          "type": "string",
+          "format": "uri"
+        },
+        "extendsCredential": {
+          "title": "Provides a complete chain to the GS1 Company Prefix or parent Key Credential",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "extendsCredential"
+      ]
+    }
+  }
+}
+
   export const mock_gs1ProductDataSchema = {
     "$id": "GS1-Product-Data-Schema",
     "$schema": "https://json-schema.org/draft/2020-12/schema",

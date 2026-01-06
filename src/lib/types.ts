@@ -47,7 +47,9 @@ export interface extVerifiableCredential {
     issuanceDate: string;
     id: string;
     name?: string;
-    credentialSubject: CredentialSubject; 
+    credentialSubject: CredentialSubject;
+    validFrom?: string;
+    validUntil?: string;
 }
 
 export interface CredentialPresentation  { 

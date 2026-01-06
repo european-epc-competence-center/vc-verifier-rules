@@ -270,6 +270,34 @@ All GS1 validation errors use format: `GS1-XXX`
 
 ---
 
+### GS1-600: Invalid validFrom Date  
+**Code**: `invalidValidFromFuture`  
+**Rule**: "The validFrom date must not be in the future."  
+**Trigger**: Credential's validFrom date is after current time  
+**Spec**: GS1 Digital Licenses Spec Section 4.2 L-4  
+**File**: `check-credential-dates.ts`  
+**Added**: 2026-01-06
+
+---
+
+### GS1-601: Invalid validUntil Date
+**Code**: `invalidValidUntilPast`  
+**Rule**: "The validUntil date must not be in the past."  
+**Trigger**: Credential's validUntil date is before current time  
+**File**: `check-credential-dates.ts`  
+**Added**: 2026-01-06
+
+---
+
+### GS1-602: Invalid Date Format
+**Code**: `invalidDateFormat`  
+**Rule**: "The date format is invalid."  
+**Trigger**: Date string cannot be parsed as valid ISO 8601 date  
+**File**: `check-credential-dates.ts`  
+**Added**: 2026-01-06
+
+---
+
 ## Business Rules Implementation
 
 ### Chain Validation Rules

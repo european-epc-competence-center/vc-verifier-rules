@@ -18,6 +18,7 @@
 - [Validation Architecture](./validation_architecture.md) - How credential validation works
 - [GS1 Credential Types](./gs1_credentials.md) - Supported credential types and chain hierarchy
 - [Business Rules](./business_rules.md) - GS1 validation rules and error codes
+- [GS1 Spec Validation Rules](./gs1_spec_validation_rules.md) - GS1 Digital Licenses spec compliance and gaps
 - [Testing](./testing.md) - Test structure and mock data
 
 ### By Use Case

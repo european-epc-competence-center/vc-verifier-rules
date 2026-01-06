@@ -26,6 +26,11 @@ export const dataMismatchBetweenDataKeyCredential =  { code: "GS1-320", rule: 'T
 export const unsupportedCredentialChain =  { code: "GS1-330", rule: 'The credential chain is not supported.'};
 export const validationChainFailure = { code: "GS1-400", rule: 'Extended Credential must verify as well.' }
 
+// Date Validation Error Codes (GS1 Digital Licenses Spec Section 4.2 L-4)
+export const invalidValidFromFuture = { code: "GS1-600", rule: 'The validFrom date must not be in the future.'};
+export const invalidValidUntilPast = { code: "GS1-601", rule: 'The validUntil date must not be in the past.'};
+export const invalidDateFormat = { code: "GS1-602", rule: 'The date format is invalid.'};
+
 // Verifier Error Codes
 export const verificationErrorCode = "VC-100";
 

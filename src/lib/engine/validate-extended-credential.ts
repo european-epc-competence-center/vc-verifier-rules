@@ -7,6 +7,7 @@ import { formateConsoleLog } from "../utility/console-logger.js";
 import { CredentialPresentation, VerifiableCredential, externalCredential, gs1RulesResult, verifiableJwt, verifyExternalCredential, jsonSchemaLoader } from "../types.js";
 import { normalizeCredential } from "../utility/jwt-utils.js";
 import { checkSchema } from "../schema/validate-schema.js";
+import { checkValidFromDate, checkValidUntilDate } from "../rules-definition/subject/check-credential-dates.js";
 
 // Metadata for the Credential Chain
 export type credentialChainMetaData = {
@@ -94,6 +95,17 @@ export async function validateCredentialChain(externalCredentialVerification: ve
     
     if (!schemaCheckResult.verified) {
         gs1CredentialCheck.errors = gs1CredentialCheck.errors.concat(schemaCheckResult.errors);
+    }
+
+    // Validate dates: validFrom must not be in future (L-4), validUntil must not be in past
+    const validFromResult = checkValidFromDate(decodedCredential);
+    if (!validFromResult.verified && validFromResult.rule) {
+        gs1CredentialCheck.errors.push(validFromResult.rule);
+    }
+
+    const validUntilResult = checkValidUntilDate(decodedCredential);
+    if (!validUntilResult.verified && validUntilResult.rule) {
+        gs1CredentialCheck.errors.push(validUntilResult.rule);
     }
 
     // When there is no extended credential exit out of the chain

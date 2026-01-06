@@ -1,5 +1,5 @@
 import { checkGS1CredentialPresentationValidation, checkGS1CredentialWithoutPresentation } from "../lib/gs1-verification-service.js";
-import { externalCredential, gs1CredentialValidationRule, gs1RulesResult, gs1ValidatorRequest, jsonSchemaLoader, VerifiableCredential, verifyExternalCredential } from "../lib/types.js";
+import { externalCredential, gs1CredentialValidationRule, gs1RulesResult, gs1ValidatorRequest, jsonSchemaLoader, VerifiableCredential, verifiableJwt, verifyExternalCredential } from "../lib/types.js";
 import { getDecodedPresentation } from "../lib/utility/jwt-utils.js";
 import { mockPrefixLicenseCredential } from "../tests/mock-credential.js";
 import { mockJoseCredentialPresentationProductJwt } from "../tests/mock-jose-credential.js";
@@ -17,17 +17,27 @@ export const loadExternalCredential: externalCredential = async (url: string) : 
     throw new Error(`External Credential "${url}" can not be resolved.`);
  }
  
- // Callback function to verifify an externally loaded credential. 
- // When a credential is loaded from an external source, this function will verify the credential and check revocation. 
- // If verififcation fails return the status to the GS1 Rules Library
- export const validateExternalCredential: verifyExternalCredential = async (credential: VerifiableCredential) : Promise<gs1RulesResult> => {
- 
-    const credentialId = credential.id ? credential.id : "unknown";
-    const credentialName = credential.name ? credential.name : "unknown";
-    const errors: gs1CredentialValidationRule[] = [];
- 
-    return { credentialId: credentialId, credentialName: credentialName, verified: true, errors: errors};
- }
+// Callback function to verifify an externally loaded credential. 
+// When a credential is loaded from an external source, this function will verify the credential and check revocation. 
+// If verififcation fails return the status to the GS1 Rules Library
+export const validateExternalCredential: verifyExternalCredential = async (credential: VerifiableCredential | verifiableJwt | string) : Promise<gs1RulesResult> => {
+
+   // Handle different credential formats
+   let credentialObj: VerifiableCredential;
+   if (typeof credential === 'string') {
+      // Decode JWT string
+      const jwt = atob(credential.split('.')[1]);
+      credentialObj = JSON.parse(jwt);
+   } else {
+      credentialObj = credential as VerifiableCredential;
+   }
+
+   const credentialId = credentialObj.id ? credentialObj.id : "unknown";
+   const credentialName = credentialObj.name ? credentialObj.name : "unknown";
+   const errors: gs1CredentialValidationRule[] = [];
+
+   return { credentialId: credentialId, credentialName: credentialName, verified: true, errors: errors};
+}
  
  // Callback Function to Load JSON Schema for GS1 Credential Validation
  // Developer Notes: The host application will need to cache or resolve all the GS1 JSON Schemas files for validation to pass.
@@ -61,36 +71,37 @@ export const loadExternalCredential: externalCredential = async (url: string) : 
    }
  }
  
- // Test Validating a sinlgle GS1 Company Prefix Credential.
- // Developer Notes: 
- // The GS1 Validator Request Callback Functions will be called to resolve the GS1 Prefix License Credential and load the required JSON Schema.
- export const testCompanyPrefixSchemaValidation = async function() : Promise<boolean> {
+// Test Validating a sinlgle GS1 Company Prefix Credential.
+// Developer Notes: 
+// The GS1 Validator Request Callback Functions will be called to resolve the GS1 Prefix License Credential and load the required JSON Schema.
+export const testCompanyPrefixSchemaValidation = async function() : Promise<boolean> {
 
-   const presentationToVerify = getDecodedPresentation(mockJoseCredentialPresentationProductJwt);
-   const companyPrefixVerifiableCredential = presentationToVerify.verifiableCredential[0];
-   const gs1RulesValidationResult = await checkGS1CredentialWithoutPresentation(test_gs1ValidatorRequest, companyPrefixVerifiableCredential);
+  const presentationToVerify = getDecodedPresentation(mockJoseCredentialPresentationProductJwt);
+  const credentials = presentationToVerify.verifiableCredential;
+  const companyPrefixVerifiableCredential = Array.isArray(credentials) ? credentials[0] : credentials;
+  const gs1RulesValidationResult = await checkGS1CredentialWithoutPresentation(test_gs1ValidatorRequest, companyPrefixVerifiableCredential);
 
-   console.log("GS1 Rules Validation Company Prefix Result: " + gs1RulesValidationResult.verified);
-   if (!gs1RulesValidationResult.verified) {
-      console.log(gs1RulesValidationResult);
-   }
+  console.log("GS1 Rules Validation Company Prefix Result: " + gs1RulesValidationResult.verified);
+  if (!gs1RulesValidationResult.verified) {
+     console.log(gs1RulesValidationResult);
+  }
 
-   return gs1RulesValidationResult.verified;
- }
+  return gs1RulesValidationResult.verified;
+}
 
 // Test Validating a GS1 Product (GTIN) Verifiable Presentation.
 // Developer Notes: 
 // The GS1 Validator Request Callback Functions will be called to resolve the GS1 Prefix License Credential and load the required JSON Schema.
- export const testProductPresentationValidation = async function() : Promise<boolean> {
+export const testProductPresentationValidation = async function() : Promise<boolean> {
 
-   const presentationToVerify = getDecodedPresentation(mockJoseCredentialPresentationProductJwt);
-   const gs1RulesValidationResult = await checkGS1CredentialPresentationValidation(test_gs1ValidatorRequest, presentationToVerify);
+  // Pass the JWT string directly instead of decoding it first, as the function expects VerifiablePresentation | string
+  const gs1RulesValidationResult = await checkGS1CredentialPresentationValidation(test_gs1ValidatorRequest, mockJoseCredentialPresentationProductJwt);
 
-   console.log("GS1 Rules Validation Product Presentation Result: " + gs1RulesValidationResult.verified);
-   if (!gs1RulesValidationResult.verified) {
-      console.log(gs1RulesValidationResult);
-   }
+  console.log("GS1 Rules Validation Product Presentation Result: " + gs1RulesValidationResult.verified);
+  if (!gs1RulesValidationResult.verified) {
+     console.log(gs1RulesValidationResult);
+  }
 
-   return gs1RulesValidationResult.verified;
+  return gs1RulesValidationResult.verified;
 }
  

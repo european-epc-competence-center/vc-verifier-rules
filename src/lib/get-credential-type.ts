@@ -3,7 +3,7 @@ import { genericCredentialSchema } from "./rules-schema/genericCredentialSchema.
 import { gs1CredentialTypes, gs1RulesSchemaMetaModel, jsonSchemaLoader, VerifiableCredential } from "./types.js";
 import { gs1CredentialChainRules } from "./rules-schema/gs1-chain-rules.js";
 import { decoder } from "./utility/text-util.js";
-import { emptyJsonSchemaSubjectOnly, gs1AltLicenseValidationRules, gs1DigitalLinkRules, gs1DigitalLinkSameAsRules, gs1GenericSchemaGS1 } from "./schema/gs1-schema-extention-types.js";
+import { emptyJsonSchemaSubjectOnly, gs1AltLicenseValidationRules, gs1DigitalLinkRules, gs1DigitalLinkSameAsRules, gs1GenericSchemaGS1, epcisCredentialSchema } from "./schema/gs1-schema-extention-types.js";
 
 export const GS1_PREFIX_LICENSE_CREDENTIAL = "GS1PrefixLicenseCredential";
 export const GS1_COMPANY_PREFIX_LICENSE_CREDENTIAL = "GS1CompanyPrefixLicenseCredential";
@@ -11,6 +11,7 @@ export const KEY_CREDENTIAL = "KeyCredential";
 export const ORGANIZATION_DATA_CREDENTIAL = "OrganizationDataCredential";
 export const PRODUCT_DATA_CREDENTIAL = "ProductDataCredential";
 export const GS1_IDENTIFICATION_KEY_LICENSE_CREDENTIAL = "GS1IdentificationKeyLicenseCredential";
+export const EPCIS_CREDENTIAL = "EpcisCredential";
 
 // List of Supportive GS1 Credential Types
 const GS1CredentialTypes = [
@@ -19,7 +20,8 @@ const GS1CredentialTypes = [
     ORGANIZATION_DATA_CREDENTIAL,
     PRODUCT_DATA_CREDENTIAL,
     GS1_PREFIX_LICENSE_CREDENTIAL,
-    GS1_IDENTIFICATION_KEY_LICENSE_CREDENTIAL
+    GS1_IDENTIFICATION_KEY_LICENSE_CREDENTIAL,
+    EPCIS_CREDENTIAL
 ];
 
 export const UNKNOWN_VALUE = "unknown";
@@ -31,7 +33,8 @@ const GS1CredentialSchema = [
     { name: KEY_CREDENTIAL, schemaId: "https://id.gs1.org/vc/schema/v1/key" },
     { name: ORGANIZATION_DATA_CREDENTIAL, schemaId: "https://id.gs1.org/vc/schema/v1/organizationdata" },
     { name: PRODUCT_DATA_CREDENTIAL, schemaId: "https://id.gs1.org/vc/schema/v1/productdata" },
-    { name: GS1_IDENTIFICATION_KEY_LICENSE_CREDENTIAL, schemaId: "https://id.gs1.org/vc/schema/v1/identificationkey" }
+    { name: GS1_IDENTIFICATION_KEY_LICENSE_CREDENTIAL, schemaId: "https://id.gs1.org/vc/schema/v1/identificationkey" },
+    { name: EPCIS_CREDENTIAL, schemaId: "https://ref.gs1.org/standards/epcis/epcis-context.jsonld" }
 ];
 
 // Get the type of credential from Verifiable Credential Type Array
@@ -78,6 +81,8 @@ export const getCredentialRuleSchemaChain = function(credential: VerifiableCrede
             return gs1CredentialChainRules.OrganizationDataCredential;
         case PRODUCT_DATA_CREDENTIAL:
             return gs1CredentialChainRules.ProductDataCredential;
+        case EPCIS_CREDENTIAL:
+            return gs1CredentialChainRules.EpcisCredential;
         default:
             return gs1CredentialChainRules.genericCredentialSchema;
       }
@@ -184,6 +189,10 @@ export const getCredentialRuleSchema = function(schemaLoader: jsonSchemaLoader, 
             return getGS1JsonSchema(fullJsonSchemaValidationOn, starterSchema, gs1DigitalLinkSameAsRules);
         case PRODUCT_DATA_CREDENTIAL:
             return getGS1JsonSchema(fullJsonSchemaValidationOn, starterSchema, gs1DigitalLinkSameAsRules);
+        case EPCIS_CREDENTIAL:
+            // Skip JSON schema validation for EPCIS credentials - return minimal schema
+            // But maintain proper $id so credential chain validation still happens
+            return epcisCredentialSchema;
         default:
             return genericCredentialSchema;
       }

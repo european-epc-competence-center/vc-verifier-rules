@@ -1,6 +1,7 @@
-## [Unreleased]
+## [2.6.0] - 2026-01-14
 
 - add chain validation for EpcisCredentials
+
 
 ## [2.5.1] - 2026-01-06
 

@@ -1,3 +1,7 @@
+## [Unreleased]
+
+- add chain validation for EpcisCredentials
+
 ## [2.5.1] - 2026-01-06
 
 - Replace hand-written GS1 Digital Link parsing with `digital-link.js` library

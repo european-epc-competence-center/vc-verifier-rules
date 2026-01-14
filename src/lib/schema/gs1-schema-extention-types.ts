@@ -27,3 +27,16 @@ export const gs1DigitalLinkRules = {
 export const gs1DigitalLinkSameAsRules = {
     "digitalLinkSameAs": true
 }
+
+export const epcisCredentialSchema = {
+    "$id": "https://ref.gs1.org/standards/epcis/epcis-credential-schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "version": "1.0.0",
+    "title": "EpcisCredential",
+    "description": "EPCIS Credential Schema - minimal validation",
+    "type": "object",
+    "properties": {
+        "credentialSubject": {
+        }
+    }
+}

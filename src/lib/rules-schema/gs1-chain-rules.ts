@@ -22,7 +22,7 @@ export const gs1CredentialChainRules = {
         title: "KeyCredential",
         extendsCredentialType: { type: ["GS1CompanyPrefixLicenseCredential", "GS1IdentificationKeyLicenseCredential", "KeyCredential"], rule: "GS1CompanyPrefixLicenseCredential"},
         childCredential: {
-            "type": ["KeyCredential", "OrganizationDataCredential", "ProductDataCredential"]
+            "type": ["KeyCredential", "OrganizationDataCredential", "ProductDataCredential", "EpcisCredential"]
         }
     },
     OrganizationDataCredential: {
@@ -32,6 +32,11 @@ export const gs1CredentialChainRules = {
     },
     ProductDataCredential: {
         title: "ProductDataCredential",
+        extendsCredentialType: { type: ["KeyCredential"], rule: "KeyDataCredential"},
+        childCredential: undefined
+    },
+    EpcisCredential: {
+        title: "EpcisCredential",
         extendsCredentialType: { type: ["KeyCredential"], rule: "KeyDataCredential"},
         childCredential: undefined
     }

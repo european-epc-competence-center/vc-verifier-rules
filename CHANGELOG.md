@@ -1,4 +1,4 @@
-## [Unreleased]
+## [2.6.2] - 2026-01-21
 
 - Improve type safety (partial - see notes)
   - Replace `any` types with `Record<string, unknown>` for organization and product fields in CredentialSubject

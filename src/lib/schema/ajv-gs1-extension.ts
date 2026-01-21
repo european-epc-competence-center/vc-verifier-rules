@@ -2,11 +2,20 @@ import Ajv from 'ajv/dist/2020.js'
 import addFormats from 'ajv-formats'
 import ajvErrors from 'ajv-errors'
 
-import { AnySchemaObject, DataValidationCxt, ValidateFunction } from "ajv/dist/types";
+import { AnySchemaObject, DataValidationCxt, ValidateFunction, ErrorObject } from "ajv/dist/types";
 import { gs1CredentialValidationRuleResult, subjectId, subjectLicenseValue, subjectSameAs } from '../gs1-rules-types';
 import { checkCredentialAlternativeLicenseValue } from '../rules-definition/subject/check-credential-alternative-license.js';
 import { checkCredentialSameAsDigitalLink, checkCredentialSubjectIdDigitalLink } from '../rules-definition/subject/check-credential-subject-Id-digital-link.js';
 import { gs1RulesSchemaMetaModel, JsonSchemaMetaModel } from '../types';
+
+// Type for custom validation function with mutable errors property
+// Ajv allows setting errors on validation functions, but TypeScript types mark it as readonly
+type CustomValidateFunction = ((
+  schema: gs1RulesSchemaMetaModel, 
+  data: unknown, 
+  parentSchema?: AnySchemaObject, 
+  dataCxt?: DataValidationCxt
+) => boolean) & { errors?: ErrorObject[] | null };
 
 // Setup Ajv JSON Schema Validator
 const ajv = new Ajv({
@@ -18,8 +27,8 @@ addFormats(ajv)
 ajvErrors(ajv)
 
 // Utility Function to Compile JSON Schema
-export const compileSchema = function (schemaToValidate: JsonSchemaMetaModel) : ValidateFunction<unknown> {
-    const maybeExistingSchema = ajv.getSchema(schemaToValidate.$id);
+export const compileSchema = function (schemaToValidate: Record<string, unknown>) : ValidateFunction<unknown> {
+    const maybeExistingSchema = ajv.getSchema((schemaToValidate as JsonSchemaMetaModel).$id);
     let compiledSchemaValidator = maybeExistingSchema;
     if (compiledSchemaValidator === undefined) {
       compiledSchemaValidator = ajv.compile(schemaToValidate);
@@ -34,12 +43,10 @@ export const compileSchema = function (schemaToValidate: JsonSchemaMetaModel) : 
     errors: true,
     async: false,
     validate: function customRuleValidation(schema: gs1RulesSchemaMetaModel, data: subjectLicenseValue, parentSchema?: AnySchemaObject, dataCxt?: DataValidationCxt) {
-      
+      const validateFn = customRuleValidation as CustomValidateFunction;
       const gs1RuleCheckResult = checkCredentialAlternativeLicenseValue(data);
       if (!gs1RuleCheckResult.verified) { 
-        // eslint-disable-next-line
-        // @ts-ignore -- Type Script Overrirde required to attach error to Ajv validate function
-        customRuleValidation.errors = createJsonSchemaError("altLicenseValidation", gs1RuleCheckResult, dataCxt);
+        validateFn.errors = createJsonSchemaError("altLicenseValidation", gs1RuleCheckResult, dataCxt);
      }
   
       return gs1RuleCheckResult.verified;
@@ -53,12 +60,10 @@ export const compileSchema = function (schemaToValidate: JsonSchemaMetaModel) : 
     errors: true,
     async: false,
     validate: function customRuleValidation(schema: gs1RulesSchemaMetaModel, data: subjectId, parentSchema?: AnySchemaObject, dataCxt?: DataValidationCxt) {
-  
+      const validateFn = customRuleValidation as CustomValidateFunction;
       const gs1RuleCheckResult = checkCredentialSubjectIdDigitalLink(data);
       if (!gs1RuleCheckResult.verified) { 
-          // eslint-disable-next-line  
-          // @ts-ignore -- Type Script Overrirde required to attach error to Ajv validate function
-          customRuleValidation.errors = createJsonSchemaError("digitalLink", gs1RuleCheckResult, dataCxt);
+          validateFn.errors = createJsonSchemaError("digitalLink", gs1RuleCheckResult, dataCxt);
       }
   
       return gs1RuleCheckResult.verified;
@@ -72,12 +77,10 @@ export const compileSchema = function (schemaToValidate: JsonSchemaMetaModel) : 
     errors: true,
     async: false,
     validate: function customRuleValidation(schema: gs1RulesSchemaMetaModel, data: subjectSameAs, parentSchema?: AnySchemaObject, dataCxt?: DataValidationCxt) {
-  
+      const validateFn = customRuleValidation as CustomValidateFunction;
       const gs1RuleCheckResult = checkCredentialSameAsDigitalLink(data);
       if (!gs1RuleCheckResult.verified) { 
-          // eslint-disable-next-line
-          // @ts-ignore -- Type Script Overrirde required to attach error to Ajv validate function
-          customRuleValidation.errors = createJsonSchemaError("digitalLink", gs1RuleCheckResult, dataCxt);
+          validateFn.errors = createJsonSchemaError("digitalLink", gs1RuleCheckResult, dataCxt);
       }
   
       return gs1RuleCheckResult.verified;
@@ -85,12 +88,12 @@ export const compileSchema = function (schemaToValidate: JsonSchemaMetaModel) : 
   });
 
   // Create Error to Return to Ajv Schema Validation Engine
-  const createJsonSchemaError = function(keyword: string, gs1RuleCheckResult: gs1CredentialValidationRuleResult, dataCxt?: DataValidationCxt) {
+  const createJsonSchemaError = function(keyword: string, gs1RuleCheckResult: gs1CredentialValidationRuleResult, dataCxt?: DataValidationCxt): ErrorObject[] {
   
-    const errors = [];
+    const errors: ErrorObject[] = [];
     
     errors.push({
-      instancePath: dataCxt?.instancePath,
+      instancePath: dataCxt?.instancePath ?? "",
       schemaPath: "",
       keyword: keyword,
       params: { 

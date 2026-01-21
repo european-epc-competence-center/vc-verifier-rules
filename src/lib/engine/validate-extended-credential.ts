@@ -149,7 +149,9 @@ export async function validateCredentialChain(externalCredentialVerification: ve
     }
 
     if (validateChain) {
-        const extendedCredentialValidationResult = await rulesEngineManager[extendedCredentialType_rule](credentialType, credentialChain);
+        // Type assertion: we know this is a chain validation function based on the rule name
+        const validationFn = rulesEngineManager[extendedCredentialType_rule] as (credentialType: string | unknown, credentialChain: credentialChainMetaData) => Promise<gs1RulesResult>;
+        const extendedCredentialValidationResult = await validationFn(credentialType, credentialChain);
         if (!extendedCredentialValidationResult.verified) {
             gs1CredentialCheck.errors = gs1CredentialCheck.errors.concat(extendedCredentialValidationResult.errors);
         }

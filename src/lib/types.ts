@@ -14,11 +14,11 @@ export type CredentialSubject = {
     alternativeLicenseValue?: string;
     keyAuthorization?: string;
     extendsCredential?: string;
+    sameAs?: string;
     CredentialPresentation?: CredentialPresentation;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    organization?: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    product?: any;
+    organization?: Record<string, unknown>; // GS1 organization data (gs1:partyGLN, gs1:organizationName, etc)
+    product?: Record<string, unknown>; // GS1 product data (gs1:brand, gs1:productDescription, etc)
+    [key: string]: unknown; // Allow additional credential subject fields
 }
 
 // @context: is a complex object that can be an array that contains strings or dynamic objects
@@ -146,12 +146,12 @@ export type gs1ValidatorRequest = {
 }
 
 export type JsonSchemaMetaModelSubject = {
-    credentialSubject: object
+    credentialSubject: Record<string, unknown>
 }
 
 export type JsonSchemaMetaModel = {
     $id: string;
-    properties: JsonSchemaMetaModelSubject;
+    properties: JsonSchemaMetaModelSubject | Record<string, unknown> | undefined;
 }
 
 export type gs1CredentialTypes =

@@ -1,3 +1,14 @@
+## [Unreleased]
+
+- Improve type safety (partial - see notes)
+  - Replace `any` types with `Record<string, unknown>` for organization and product fields in CredentialSubject
+  - Replace `any` with `Record<string, unknown>` for JSON Schema properties (inherently dynamic)
+  - Remove three `@ts-ignore` comments in Ajv extensions by using proper type assertions
+  - Fix unsafe double type assertion in validate-extended-company-prefix.ts
+  - Add proper types for GS1 product data structure
+  - Note: `rulesEngineManager` remains dynamically typed due to complex union type constraints
+
+
 ## [2.6.1] - 2026-01-21
 
 - **CRITICAL FIX**: Fix `credentialTypesSource.filter is not a function` error

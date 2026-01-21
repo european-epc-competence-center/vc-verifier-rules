@@ -13,8 +13,7 @@ export type propertyMetaDataTypes = {
 // Properties is a dynamic object based on credential subject schema
 export type CredentialSubjectSchema = {
     type: string;
-    // eslint-disable-next-line
-    properties: any;
+    properties: Record<string, unknown> | undefined; // JSON Schema properties are dynamic
     required: string[];
     extendsCredentialType?: propertyMetaData;
     childCredential?: propertyMetaData;
@@ -36,8 +35,7 @@ export type gs1CredentialSchema = {
     required?: string[];
     type: string;
     title: string;
-    // eslint-disable-next-line
-    properties: any;
+    properties: Record<string, unknown> | undefined; // JSON Schema properties are dynamic
 }
 
 export type gs1CredentialSchemaChain = {

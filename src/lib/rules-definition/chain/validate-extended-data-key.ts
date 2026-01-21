@@ -82,8 +82,7 @@ function setupDataCredentialChain(credentialChain: credentialChainMetaData) : cr
 
 // Validate Data Credential against Key Credential Digital Link subject fields
 // When valueToCheck is not empty do an additional check against the parsed value of the GS1 Digital Link
-// eslint-disable-next-line
-function validateDataToKeyCredential(keyCredentialSubject: CredentialSubject | undefined, dataCredentialSubject: any | undefined, valueToCheck: string = "") : boolean {
+function validateDataToKeyCredential(keyCredentialSubject: CredentialSubject | undefined, dataCredentialSubject: CredentialSubject | undefined, valueToCheck: string = "") : boolean {
 
     if (keyCredentialSubject === undefined) {
         throw new Error("Key Credential Subject is not defined.");

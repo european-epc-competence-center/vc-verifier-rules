@@ -108,7 +108,8 @@ const getGS1JsonSchema = function(fullJsonSchemaValidationOn: boolean, standardS
     }
 
     if (gs1RulesSchema != null) { 
-        schemaToValidate.properties.credentialSubject = {...schemaToValidate.properties?.credentialSubject, ...gs1RulesSchema};
+        const currentSubject = schemaToValidate.properties?.credentialSubject as Record<string, unknown> | undefined;
+        schemaToValidate.properties!.credentialSubject = {...currentSubject, ...gs1RulesSchema as Record<string, unknown>};
     }
 
     return schemaToValidate;
@@ -123,7 +124,9 @@ const getGS1JsonSchemaForV1 = function(jsonSchema: gs1CredentialSchema) {
     v1Schema["$id"] = jsonSchema["$id"] + "-V1";
     v1Schema.required = [];
     v1Schema.properties = {};
-    v1Schema.properties.credentialSubject = jsonSchema.properties.credentialSubject;
+    if (jsonSchema.properties) {
+        v1Schema.properties.credentialSubject = jsonSchema.properties.credentialSubject;
+    }
     return v1Schema;
 }
 

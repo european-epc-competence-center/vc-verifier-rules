@@ -23,13 +23,15 @@
 - [KeyCredential Chains (K-8)](./key_credential_chains.md) - Serialized item support (SGTIN → GTIN)
 - [Testing](./testing.md) - Test structure and mock data
 - [Critical Review](./critical_review.md) - Code quality assessment, bug fixes, and improvement recommendations
+- [Type Safety Review](./type_safety_review.md) - TypeScript type improvements and remaining dynamic typing
 
 ### By Use Case
 - **First-time setup**: Read [API and Public Interface](./api.md) and [GS1 Credential Types](./gs1_credentials.md)
 - **Understanding validation flow**: Read [Validation Architecture](./validation_architecture.md)
 - **Debugging validation errors**: Check [Business Rules](./business_rules.md) for error codes and [Critical Review](./critical_review.md)
 - **Adding new credential types**: Review [Validation Architecture](./validation_architecture.md) and [Business Rules](./business_rules.md)
-- **Code quality and improvements**: See [Critical Review](./critical_review.md) for recent bug fixes and architectural recommendations
+- **Code quality and improvements**: See [Critical Review](./critical_review.md) and [Type Safety Review](./type_safety_review.md)
+- **TypeScript integration**: Check [Type Safety Review](./type_safety_review.md) for type definitions and patterns
 
 ## Key Technical Details
 

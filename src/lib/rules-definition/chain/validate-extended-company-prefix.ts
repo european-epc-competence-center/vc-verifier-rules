@@ -83,7 +83,7 @@ export async function validateExtendedCompanyPrefixCredential(credentialType: st
     // GS1CompanyPrefixLicenseCredential → GS1PrefixLicenseCredential
     else {
         const extendedCredentialSubject = extendedCredential.credentialSubject as gs1CompanyPrefixCredentialType;
-        const currentCredentialSubject = credentialSubject as unknown as gs1CompanyPrefixCredentialType;
+        const currentCredentialSubject = credentialSubject as gs1CompanyPrefixCredentialType;
 
         // Verify Credential Issuer between credential and extended credential
         const issuerResult = await checkIssuerToSubjectId(credential, extendedCredentialSubject);

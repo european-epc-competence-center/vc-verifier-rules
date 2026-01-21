@@ -1,4 +1,4 @@
-## [Unreleased]
+## [2.6.1] - 2026-01-21
 
 - **CRITICAL FIX**: Fix `credentialTypesSource.filter is not a function` error
   - Updated type definitions to support both `string` and `string[]` for credential `type` field per W3C VC specification
@@ -16,6 +16,7 @@
   - Tests for malformed credentials returning structured errors
   - Tests for missing validator request handling
   - Updated existing tests to validate improved error messages
+
 
 ## [2.6.0] - 2026-01-14
 

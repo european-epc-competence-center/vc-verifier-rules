@@ -29,7 +29,7 @@ export async function resolveExternalCredential(externalCredentialLoader: extern
         
         // Resolve the external credential via callback 
         if (!url) {
-            throw new Error(`External Credential "${url}" can not be resolved.`);
+            return { credential: undefined, inPresentation : false, error: `External Credential URL is missing or undefined - cannot resolve credential.`};
         }
         const externalResult = await externalCredentialLoader(url);
         return { credential: externalResult, inPresentation : false };
@@ -38,8 +38,8 @@ export async function resolveExternalCredential(externalCredentialLoader: extern
         if (LOG_EXTERNAL_CREDENTIALS_ERRORS) {
             console.log(e);
         }
-        
-        return { credential: undefined, inPresentation : false, error:  `External Credential "${url}" can not be resolved.`};
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        return { credential: undefined, inPresentation : false, error:  `External Credential "${url}" can not be resolved: ${errorMessage}`};
     }
 
 }

@@ -2,7 +2,7 @@ import { genericCredentialSchema } from "./rules-schema/genericCredentialSchema.
 import { getCredentialRuleSchema } from "./get-credential-type.js";
 import { buildCredentialChain,  validateCredentialChain } from "./engine/validate-extended-credential.js";
 import { CredentialPresentation, gs1RulesResult, gs1RulesResultContainer, gs1ValidatorRequest, VerifiableCredential, VerifiablePresentation, verifiableJwt } from "./types.js";
-import { errorResolveCredentialCode } from "./engine/gs1-credential-errors.js";
+import { errorResolveCredentialCode, errorInvalidCredentialStructure, errorInvalidCredentialType, errorMissingDocumentResolver } from "./engine/gs1-credential-errors.js";
 import { resolveExternalCredential } from "./engine/resolve-external-credential.js";
 import { normalizeCredential, normalizePresentation } from "./utility/jwt-utils.js";
 
@@ -14,50 +14,74 @@ import { normalizeCredential, normalizePresentation } from "./utility/jwt-utils.
 // - When fullJsonSchemaValidationOn is false will Validate only validate GS1 Custom Rules and Root of Trust credential chain
 async function checkGS1Credentials(validatorRequest: gs1ValidatorRequest, verifiablePresentation: CredentialPresentation | verifiableJwt | string, credential: VerifiableCredential | verifiableJwt | string) : Promise<gs1RulesResult> {
 
-    const decodedCredential: VerifiableCredential = normalizeCredential(credential);
-    const decodedPresentation: CredentialPresentation = normalizePresentation(verifiablePresentation);
+    try {
+        const decodedCredential: VerifiableCredential = normalizeCredential(credential);
+        const decodedPresentation: CredentialPresentation = normalizePresentation(verifiablePresentation);
 
-    const credentialSubject = decodedCredential?.credentialSubject;
+        const credentialSubject = decodedCredential?.credentialSubject;
 
-    if (!decodedCredential || !credentialSubject) { 
-        throw new Error("No Credential in Presentation");
-    }
-
-    if (!validatorRequest || !validatorRequest.gs1DocumentResolver) { 
-        throw new Error("Document Resolver Callback must be provided to validate GS1 Credentials");
-    }
-    
-    const externalCredentialLoader = validatorRequest.gs1DocumentResolver.externalCredentialLoader;
-    const externalCredentialVerification = validatorRequest.gs1DocumentResolver.externalCredentialVerification;
-    const jsonSchemaLoader = validatorRequest.gs1DocumentResolver.externalJsonSchemaLoader;
-
-    const credentialSchema = getCredentialRuleSchema(jsonSchemaLoader, decodedCredential, validatorRequest.fullJsonSchemaValidationOn);
-
-    // Return verified when non GS1 Credential
-    if (credentialSchema.$id === genericCredentialSchema.$id) { 
-        return { credentialId : decodedCredential.id, credentialName: "unknown", verified: true, errors: []};
-    }
-
-    const gs1CredentialCheck: gs1RulesResult = { credentialId : decodedCredential.id, credentialName: credentialSchema.title ? credentialSchema.title : "unknown", verified: true, errors: []};
-
-    const credentialChain = await buildCredentialChain(externalCredentialLoader, decodedPresentation, credential);
-    if (!credentialChain.error) {
-        const extendedCredentialResult = await validateCredentialChain(externalCredentialVerification, credentialChain, true, jsonSchemaLoader, validatorRequest.fullJsonSchemaValidationOn);
-
-        gs1CredentialCheck.resolvedCredential = extendedCredentialResult.resolvedCredential;
-        if (!extendedCredentialResult.verified) {
-            gs1CredentialCheck.verified = false;
-            gs1CredentialCheck.errors = gs1CredentialCheck.errors.concat(extendedCredentialResult.errors);
+        if (!decodedCredential || !credentialSubject) { 
+            return {
+                credentialId: decodedCredential?.id || "unknown",
+                credentialName: "unknown",
+                verified: false,
+                errors: [errorInvalidCredentialStructure]
+            };
         }
-    } else {
-        gs1CredentialCheck.errors.push({ code: errorResolveCredentialCode, rule: credentialChain.error });
-    }
 
-    if (gs1CredentialCheck.errors.length > 0) {
-        gs1CredentialCheck.verified = false;
-    }
+        if (!validatorRequest || !validatorRequest.gs1DocumentResolver) { 
+            return {
+                credentialId: decodedCredential.id,
+                credentialName: "unknown",
+                verified: false,
+                errors: [errorMissingDocumentResolver]
+            };
+        }
+        
+        const externalCredentialLoader = validatorRequest.gs1DocumentResolver.externalCredentialLoader;
+        const externalCredentialVerification = validatorRequest.gs1DocumentResolver.externalCredentialVerification;
+        const jsonSchemaLoader = validatorRequest.gs1DocumentResolver.externalJsonSchemaLoader;
 
-    return gs1CredentialCheck;
+        const credentialSchema = getCredentialRuleSchema(jsonSchemaLoader, decodedCredential, validatorRequest.fullJsonSchemaValidationOn);
+
+        // Return verified when non GS1 Credential
+        if (credentialSchema.$id === genericCredentialSchema.$id) { 
+            return { credentialId : decodedCredential.id, credentialName: "unknown", verified: true, errors: []};
+        }
+
+        const gs1CredentialCheck: gs1RulesResult = { credentialId : decodedCredential.id, credentialName: credentialSchema.title ? credentialSchema.title : "unknown", verified: true, errors: []};
+
+        const credentialChain = await buildCredentialChain(externalCredentialLoader, decodedPresentation, credential);
+        if (!credentialChain.error) {
+            const extendedCredentialResult = await validateCredentialChain(externalCredentialVerification, credentialChain, true, jsonSchemaLoader, validatorRequest.fullJsonSchemaValidationOn);
+
+            gs1CredentialCheck.resolvedCredential = extendedCredentialResult.resolvedCredential;
+            if (!extendedCredentialResult.verified) {
+                gs1CredentialCheck.verified = false;
+                gs1CredentialCheck.errors = gs1CredentialCheck.errors.concat(extendedCredentialResult.errors);
+            }
+        } else {
+            gs1CredentialCheck.errors.push({ code: errorResolveCredentialCode, rule: credentialChain.error });
+        }
+
+        if (gs1CredentialCheck.errors.length > 0) {
+            gs1CredentialCheck.verified = false;
+        }
+
+        return gs1CredentialCheck;
+    } catch (error) {
+        // Catch any unexpected errors during credential processing
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return {
+            credentialId: "unknown",
+            credentialName: "unknown",
+            verified: false,
+            errors: [{
+                code: errorResolveCredentialCode,
+                rule: `Error processing credential: ${errorMessage}`
+            }]
+        };
+    }
 }
 
 // Verify an indiviual GS1 credential to ensure it follows the GS1 level four rules. 
@@ -84,7 +108,15 @@ export async function checkGS1CredentialPresentationValidation(validatorRequest:
 
     if (Array.isArray(presentationCredentials)) { 
         if (!validatorRequest.gs1DocumentResolver || !validatorRequest.gs1DocumentResolver.externalCredentialLoader) {
-            throw new Error("Validation Document Resolver Callback must be provided to validate GS1 Credentials");
+            return {
+                verified: false,
+                result: [{
+                    credentialId: "unknown",
+                    credentialName: "unknown",
+                    verified: false,
+                    errors: [errorMissingDocumentResolver]
+                }]
+            };
         }
        
         const externalCredentialLoader = validatorRequest.gs1DocumentResolver.externalCredentialLoader;

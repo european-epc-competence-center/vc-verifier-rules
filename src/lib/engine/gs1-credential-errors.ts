@@ -39,4 +39,7 @@ export const requiredFieldMissing = { code: "GS1-500", rule: `Required field --r
 
 // Generic Error Codes 
 export const errorResolveCredentialCode = "GS1-010";
+export const errorInvalidCredentialStructure = { code: "GS1-011", rule: 'Invalid credential structure: credential or credentialSubject is missing or malformed.'};
+export const errorInvalidCredentialType = { code: "GS1-012", rule: 'Invalid credential type: type field is missing or malformed.'};
+export const errorMissingDocumentResolver = { code: "GS1-013", rule: 'Document resolver callbacks are required but were not provided.'};
 

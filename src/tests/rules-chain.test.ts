@@ -57,22 +57,23 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
 
     it('should throw error for externally credential that can not be resolved', async () => {
           const urlToResolve = "https://mock-credential";
-          const expectedError = `External Credential "${urlToResolve}" can not be resolved.`;
 
           const result = await resolveExternalCredential(mock_getExternalCredential, mockPresentationParty, urlToResolve);
           expect(result.credential).toBeUndefined();
           expect(result.error?.length).toBeGreaterThan(0);
-          expect(result.error).toBe(expectedError);
+          // Check that error message contains the URL and explains it couldn't be resolved
+          expect(result.error).toContain(urlToResolve);
+          expect(result.error).toContain("can not be resolved");
     })
   
     it('should throw error for externally credential (undefined) that can not be resolved', async () => {
         const urlToResolve = undefined;
-        const expectedError = `External Credential "${urlToResolve}" can not be resolved.`;
         
         const result = await resolveExternalCredential(mock_getExternalCredential, mockPresentationParty, urlToResolve);
         expect(result.credential).toBeUndefined();
         expect(result.error?.length).toBeGreaterThan(0);
-        expect(result.error).toBe(expectedError);
+        // Check for more descriptive error message
+        expect(result.error).toContain("missing or undefined");
     })
 
     it('should build credential chain for Company Prefix', async () => {

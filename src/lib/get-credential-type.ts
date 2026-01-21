@@ -37,15 +37,19 @@ const GS1CredentialSchema = [
     { name: EPCIS_CREDENTIAL, schemaId: "https://ref.gs1.org/standards/epcis/epcis-context.jsonld" }
 ];
 
-// Get the type of credential from Verifiable Credential Type Array
+// Get the type of credential from Verifiable Credential Type (string or array)
 // If credential is not a supported GS1 Credential, return "unknown"
-export const getCredentialType = ( credentialTypesSource: string[] | undefined): gs1CredentialTypes =>  {
+export const getCredentialType = ( credentialTypesSource: string | string[] | undefined): gs1CredentialTypes =>  {
 
     if (!credentialTypesSource)
         return {name: UNKNOWN_VALUE, schemaId: ""};
 
+    // Normalize credentialTypesSource to always be an array
+    // Per W3C VC spec, type can be a string or an array of strings
+    const typesArray = Array.isArray(credentialTypesSource) ? credentialTypesSource : [credentialTypesSource];
+
     // Look for GS1 Credential Type into source credential types. There should only be one GS1 Credential in the source 
-    const credentialTypes = credentialTypesSource.filter(credentialType => GS1CredentialTypes.includes(credentialType));
+    const credentialTypes = typesArray.filter(credentialType => GS1CredentialTypes.includes(credentialType));
 
     if (credentialTypes.length === 1) {
         const credentialType = GS1CredentialSchema.find(credential => credential.name === credentialTypes[0]);
@@ -66,10 +70,15 @@ export const getCredentialType = ( credentialTypesSource: string[] | undefined):
 export const getCredentialRuleSchemaChain = function(credential: VerifiableCredential) : gs1CredentialSchemaChain { 
 
     if (!credential) {
-        throw new Error("Credential is undefined");
+        throw new Error("Credential is undefined - cannot determine chain rules");
+    }
+
+    if (credential.type === undefined || credential.type === null) {
+        throw new Error("Credential type is undefined or null - cannot determine chain rules");
     }
 
     const credentialType = getCredentialType(credential.type);
+    
     switch(credentialType.name) {
         case GS1_PREFIX_LICENSE_CREDENTIAL:
             return gs1CredentialChainRules.GS1PrefixLicenseCredential;
@@ -162,11 +171,11 @@ const callResolverToGetJsonSchema = function(schemaLoader: jsonSchemaLoader, cre
 export const getCredentialRuleSchema = function(schemaLoader: jsonSchemaLoader, credential: VerifiableCredential, fullJsonSchemaValidationOn: boolean = true) : gs1CredentialSchema { 
 
     if (!credential) {
-        throw new Error("Credential can not be undefined.");
+        throw new Error("Credential cannot be undefined - no credential provided for schema validation");
     }
 
-    if (credential.type === undefined) {
-        throw new Error("Credential type can not be undefined.");
+    if (credential.type === undefined || credential.type === null) {
+        throw new Error("Credential type field is missing or null - cannot determine validation schema. The 'type' field is required per W3C VC specification.");
     }
 
     // GS1 Credential Type from verifiable credential

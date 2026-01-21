@@ -117,6 +117,21 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
         const result = await getCredentialType(["GS1UnknownCredential"]);
         expect(result.name).toBe("unknown")
     })
+
+    it('should handle credential type as string (not array)', async () => {
+        const result = await getCredentialType("GS1CompanyPrefixLicenseCredential");
+        expect(result.name).toBe("GS1CompanyPrefixLicenseCredential")
+    })
+
+    it('should handle credential type as string for unknown types', async () => {
+        const result = await getCredentialType("GS1UnknownCredential");
+        expect(result.name).toBe("unknown")
+    })
+
+    it('should handle undefined credential type', async () => {
+        const result = await getCredentialType(undefined);
+        expect(result.name).toBe("unknown")
+    })
    
     it('should get credential scheme for a credential (Company Prefix)', async () => {
         const result = await getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
@@ -133,6 +148,62 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
         expect(result.$id).toBe("Generic-Schema");
     })
 
+    it('should return structured error when credential has malformed type', async () => {
+        const jsonCompanyPrefixCredential = JSON.stringify(mockCompanyPrefixCredential);
+        const malformedCredential = JSON.parse(jsonCompanyPrefixCredential);
+        delete malformedCredential.credentialSubject;
+
+        const validatorRequest: gs1ValidatorRequest = {
+            fullJsonSchemaValidationOn: true,
+            gs1DocumentResolver: {
+                externalCredentialLoader: mock_getExternalCredential,
+                externalCredentialVerification: mock_checkExternalCredential,
+                externalJsonSchemaLoader: mock_jsonSchemaLoader
+            }
+        }
+
+        const result = await checkGS1CredentialWithoutPresentation(validatorRequest, malformedCredential);
+        
+        expect(result.verified).toBe(false);
+        expect(result.errors).toBeDefined();
+        expect(result.errors.length).toBeGreaterThan(0);
+        expect(result.errors[0].code).toBe("GS1-011");
+    })
+
+    it('should return structured error when validator request is missing', async () => {
+        const invalidRequest = {
+            fullJsonSchemaValidationOn: true,
+            gs1DocumentResolver: null as any
+        }
+
+        const result = await checkGS1CredentialWithoutPresentation(invalidRequest, mockCompanyPrefixCredential);
+        
+        expect(result.verified).toBe(false);
+        expect(result.errors).toBeDefined();
+        expect(result.errors.length).toBeGreaterThan(0);
+        expect(result.errors[0].code).toBe("GS1-013");
+    })
+
+    it('should handle credential with string type instead of array gracefully', async () => {
+        const jsonCompanyPrefixCredential = JSON.stringify(mockCompanyPrefixCredential);
+        const credentialWithStringType = JSON.parse(jsonCompanyPrefixCredential);
+        credentialWithStringType.type = "GS1CompanyPrefixLicenseCredential"; // String instead of array
+
+        const validatorRequest: gs1ValidatorRequest = {
+            fullJsonSchemaValidationOn: true,
+            gs1DocumentResolver: {
+                externalCredentialLoader: mock_getExternalCredential,
+                externalCredentialVerification: mock_checkExternalCredential,
+                externalJsonSchemaLoader: mock_jsonSchemaLoader
+            }
+        }
+
+        const result = await checkGS1CredentialWithoutPresentation(validatorRequest, credentialWithStringType);
+        
+        // Should work without throwing "filter is not a function" error
+        expect(result).toBeDefined();
+        expect(result.credentialName).toBeDefined();
+    })
 
    
 })

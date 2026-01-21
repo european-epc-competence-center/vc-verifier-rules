@@ -1,3 +1,22 @@
+## [Unreleased]
+
+- **CRITICAL FIX**: Fix `credentialTypesSource.filter is not a function` error
+  - Updated type definitions to support both `string` and `string[]` for credential `type` field per W3C VC specification
+  - Fixed `getCredentialType()` to normalize type input to array before filtering
+  - Removed unsafe type casting in credential chain validation
+- Improve error handling and error messages throughout the library
+  - Replace generic thrown exceptions with structured error codes and descriptive messages
+  - Added new error codes: `GS1-011` (invalid credential structure), `GS1-012` (invalid type), `GS1-013` (missing resolver)
+  - Enhanced error messages to explain what failed and why (e.g., "Credential type field is missing or null - cannot determine validation schema")
+  - Changed `checkGS1CredentialPresentationValidation()` to return structured errors instead of throwing
+  - Improved error messages in `resolveExternalCredential()` with more context
+  - Added comprehensive try-catch in main validation function to prevent uncaught exceptions
+- Add comprehensive test coverage for error handling
+  - Tests for string vs array credential types
+  - Tests for malformed credentials returning structured errors
+  - Tests for missing validator request handling
+  - Updated existing tests to validate improved error messages
+
 ## [2.6.0] - 2026-01-14
 
 - add chain validation for EpcisCredentials

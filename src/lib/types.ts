@@ -22,16 +22,17 @@ export type CredentialSubject = {
 }
 
 // @context: is a complex object that can be an array that contains strings or dynamic objects
+// type: can be a single string or an array of strings per W3C VC spec
 export interface sharedVerifiable  {
     '@context'?: object | string[];
-    type?: string[];
+    type?: string | string[];
     proof?: Proof | Proof[];
 }
 
 export interface verifiableJwt {
     '@context'?: object | string[];
     id: string;
-    type?: string[];
+    type?: string | string[];
 }
 
 

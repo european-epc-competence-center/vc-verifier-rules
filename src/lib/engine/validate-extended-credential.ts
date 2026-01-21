@@ -127,7 +127,7 @@ export async function validateCredentialChain(externalCredentialVerification: ve
     }
 
     // Check if Child is Supported Type
-    const credentialType = getCredentialType(decodedCredential.type as string[])
+    const credentialType = getCredentialType(decodedCredential.type)
 
     const childIsValid = extendedCredentialSchema?.childCredential?.type.includes(credentialType.name)
     if (!childIsValid) {

@@ -22,12 +22,14 @@
 - [GS1 Digital Link Implementation](./gs1_digital_link_implementation.md) - Digital Link parsing, validation, and check digits
 - [KeyCredential Chains (K-8)](./key_credential_chains.md) - Serialized item support (SGTIN → GTIN)
 - [Testing](./testing.md) - Test structure and mock data
+- [Critical Review](./critical_review.md) - Code quality assessment, bug fixes, and improvement recommendations
 
 ### By Use Case
 - **First-time setup**: Read [API and Public Interface](./api.md) and [GS1 Credential Types](./gs1_credentials.md)
 - **Understanding validation flow**: Read [Validation Architecture](./validation_architecture.md)
-- **Debugging validation errors**: Check [Business Rules](./business_rules.md) for error codes
+- **Debugging validation errors**: Check [Business Rules](./business_rules.md) for error codes and [Critical Review](./critical_review.md)
 - **Adding new credential types**: Review [Validation Architecture](./validation_architecture.md) and [Business Rules](./business_rules.md)
+- **Code quality and improvements**: See [Critical Review](./critical_review.md) for recent bug fixes and architectural recommendations
 
 ## Key Technical Details
 

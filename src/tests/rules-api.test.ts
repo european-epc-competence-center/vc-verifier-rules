@@ -173,8 +173,8 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     it('should return structured error when validator request is missing', async () => {
         const invalidRequest = {
             fullJsonSchemaValidationOn: true,
-            gs1DocumentResolver: null as any
-        }
+            gs1DocumentResolver: null
+        } as unknown as gs1ValidatorRequest;
 
         const result = await checkGS1CredentialWithoutPresentation(invalidRequest, mockCompanyPrefixCredential);
         

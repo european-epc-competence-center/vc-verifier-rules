@@ -2,7 +2,7 @@ import { genericCredentialSchema } from "./rules-schema/genericCredentialSchema.
 import { getCredentialRuleSchema } from "./get-credential-type.js";
 import { buildCredentialChain,  validateCredentialChain } from "./engine/validate-extended-credential.js";
 import { CredentialPresentation, gs1RulesResult, gs1RulesResultContainer, gs1ValidatorRequest, VerifiableCredential, VerifiablePresentation, verifiableJwt } from "./types.js";
-import { errorResolveCredentialCode, errorInvalidCredentialStructure, errorInvalidCredentialType, errorMissingDocumentResolver } from "./engine/gs1-credential-errors.js";
+import { errorResolveCredentialCode, errorInvalidCredentialStructure, errorMissingDocumentResolver } from "./engine/gs1-credential-errors.js";
 import { resolveExternalCredential } from "./engine/resolve-external-credential.js";
 import { normalizeCredential, normalizePresentation } from "./utility/jwt-utils.js";
 

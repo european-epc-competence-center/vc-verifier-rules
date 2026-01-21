@@ -16,6 +16,9 @@
   - Tests for malformed credentials returning structured errors
   - Tests for missing validator request handling
   - Updated existing tests to validate improved error messages
+- Fix linter errors
+  - Remove unused import `errorInvalidCredentialType`
+  - Fix type assertion in test to avoid `@typescript-eslint/no-explicit-any` error
 
 
 ## [2.6.0] - 2026-01-14

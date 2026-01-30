@@ -12,7 +12,8 @@ import { VerifiableCredential } from "../../types.js";
 export function checkValidFromDate(credential: VerifiableCredential): gs1CredentialValidationRuleResult {
     const validFrom = credential.validFrom;
 
-    // validFrom is optional, so undefined is valid
+    // Defensive check: validFrom is required by schema, but handle gracefully if missing
+    // (Schema validation should catch missing validFrom before this business rule check)
     if (!validFrom) {
         return { verified: true };
     }
@@ -46,7 +47,7 @@ export function checkValidFromDate(credential: VerifiableCredential): gs1Credent
 export function checkValidUntilDate(credential: VerifiableCredential): gs1CredentialValidationRuleResult {
     const validUntil = credential.validUntil;
 
-    // validUntil is optional, so undefined is valid
+    // validUntil is optional in W3C VC Data Model 2.0, so undefined is valid
     if (!validUntil) {
         return { verified: true };
     }

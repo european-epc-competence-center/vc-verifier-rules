@@ -3,7 +3,7 @@ import { checkPrefixCredentialLicenseValue } from '../lib/rules-definition/subje
 import { checkCredentialSameAsDigitalLink, checkCredentialSubjectIdDigitalLink, parseGS1DigitalLink } from '../lib/rules-definition/subject/check-credential-subject-Id-digital-link';
 import { checkSchema } from '../lib/schema/validate-schema';
 import { getDecodedPresentation } from '../lib/utility/jwt-utils';
-import { mock_jsonSchemaLoader } from './mock-data';
+import { realJsonSchemaLoader } from './test-helpers.js';
 import { mockJoseCredentialPresentationProductJwt } from './mock-jose-credential';
 
 const getMockCredentialFromPresentation = function(presentation: string, indexValue: number) { 
@@ -23,7 +23,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     mockCompanyPrefixCredential.credentialSubject.licenseValue = "0562";
     mockCompanyPrefixCredential.credentialSubject.alternativeLicenseValue = "562";
  
-    const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+    const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
     const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
     expect(result.verified).toBe(true);
     expect(result.errors.length).toBe(0);
@@ -35,7 +35,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     mockCompanyPrefixCredential.credentialSubject.licenseValue = "123456789012";
     mockCompanyPrefixCredential.credentialSubject.alternativeLicenseValue = undefined
  
-    const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+    const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
     const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
     expect(result.verified).toBe(true);
     expect(result.errors.length).toBe(0);
@@ -45,7 +45,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
       const mockCompanyPrefixCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 0);
       mockCompanyPrefixCredential.credentialSubject.licenseValue = undefined;
    
-      const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+      const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
       const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
       expect(result.verified).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
@@ -55,7 +55,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     const mockCompanyPrefixCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 0);
     mockCompanyPrefixCredential.credentialSubject.licenseValue = null;
  
-    const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+    const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
     const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
     expect(result.verified).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
@@ -65,7 +65,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     const mockCompanyPrefixCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 0);
     mockCompanyPrefixCredential.credentialSubject.licenseValue = "zebra";
  
-    const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+    const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
     const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
     expect(result.verified).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
@@ -97,7 +97,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     mockCompanyPrefixCredential.credentialSubject.licenseValue = "08600057694";
     mockCompanyPrefixCredential.credentialSubject.alternativeLicenseValue = "8600057694";
  
-    const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+    const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
     const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
     expect(result.verified).toBe(true);
     expect(result.errors.length).toBe(0);
@@ -108,7 +108,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     mockCompanyPrefixCredential.credentialSubject.licenseValue = "08600057694";
     mockCompanyPrefixCredential.credentialSubject.alternativeLicenseValue = undefined;
  
-    const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+    const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
     const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
     expect(result.verified).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
@@ -119,7 +119,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     mockCompanyPrefixCredential.credentialSubject.licenseValue = "08600057694";
     mockCompanyPrefixCredential.credentialSubject.alternativeLicenseValue = "18600057694";
  
-    const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+    const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
     const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
     expect(result.verified).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
@@ -130,7 +130,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     mockCompanyPrefixCredential.credentialSubject.licenseValue = "08600057694";
     mockCompanyPrefixCredential.credentialSubject.alternativeLicenseValue = "08600057694";
  
-    const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+    const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
     const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
     expect(result.verified).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
@@ -145,7 +145,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
       const mockCompanyPrefixCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 0);
       mockCompanyPrefixCredential.credentialSubject.organization = organization
    
-      const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+      const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
       const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
       expect(result.verified).toBe(true);
       expect(result.errors.length).toBe(0);
@@ -161,7 +161,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     const mockCompanyPrefixCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 0);
     mockCompanyPrefixCredential.credentialSubject.organization = organization;
  
-    const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+    const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
     const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
     expect(result.verified).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
@@ -176,7 +176,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
       const mockCompanyPrefixCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 0);
       mockCompanyPrefixCredential.credentialSubject.organization = organization
   
-      const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader,  mockCompanyPrefixCredential, true);
+      const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader,  mockCompanyPrefixCredential, true);
       const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
       expect(result.verified).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
@@ -191,7 +191,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     const mockCompanyPrefixCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 0);
     mockCompanyPrefixCredential.credentialSubject.organization = organization;
 
-    const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+    const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
     const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
     expect(result.verified).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
@@ -204,7 +204,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     const mockCompanyPrefixCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 0);
     mockCompanyPrefixCredential.credentialSubject.organization = organization
 
-    const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+    const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
     const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
     expect(result.verified).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
@@ -219,7 +219,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
       const mockProductDataCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 2);
       mockProductDataCredential.credentialSubject.product = product;
 
-      const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockProductDataCredential, true);
+      const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockProductDataCredential, true);
       const result = await checkSchema(credentialSchema, mockProductDataCredential);
       expect(result.verified).toBe(true);
       expect(result.errors.length).toBe(0);
@@ -234,7 +234,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
       const mockProductDataCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 2);
       mockProductDataCredential.credentialSubject.product = product;
 
-      const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockProductDataCredential, true);
+      const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockProductDataCredential, true);
       const result = await checkSchema(credentialSchema, mockProductDataCredential);
 
       expect(result.verified).toBe(false);
@@ -250,7 +250,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
       const mockProductDataCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 2);
       mockProductDataCredential.credentialSubject.product = product;
 
-      const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockProductDataCredential, true);
+      const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockProductDataCredential, true);
       const result = await checkSchema(credentialSchema, mockProductDataCredential);
       expect(result.verified).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
@@ -265,7 +265,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
       const mockProductDataCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 2);
       mockProductDataCredential.credentialSubject.product = product;
 
-      const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockProductDataCredential, true);
+      const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockProductDataCredential, true);
       const result = await checkSchema(credentialSchema, mockProductDataCredential);
       expect(result.verified).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
@@ -275,7 +275,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
       const mockProductDataCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 2);
       mockProductDataCredential.credentialSubject.product = undefined;
 
-      const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockProductDataCredential, true);
+      const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockProductDataCredential, true);
       const result = await checkSchema(credentialSchema, mockProductDataCredential);
       expect(result.verified).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
@@ -287,7 +287,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
       const mockCompanyPrefixCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 0);
       mockCompanyPrefixCredential.credentialSubject.id = credentialSubjectId;
    
-      const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+      const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
       const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
       expect(result.verified).toBe(true);
       expect(result.errors.length).toBe(0);
@@ -299,7 +299,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
       const mockCompanyPrefixCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 0);
       mockCompanyPrefixCredential.credentialSubject.id = credentialSubjectId;
    
-      const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+      const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
       const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
       expect(result.verified).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
@@ -312,7 +312,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
       // @ts-expect-error - This is a test
       mockCompanyPrefixCredential.credentialSubject.id = credentialSubjectId;
    
-      const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential);
+      const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential);
       const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
       expect(result.verified).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);

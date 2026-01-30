@@ -45,12 +45,12 @@ export type Verifiable = sharedVerifiable | string;
 
 export interface extVerifiableCredential {
     issuer: string | credentialIssuer;
-    issuanceDate: string;
     id: string;
     name?: string;
     credentialSubject: CredentialSubject;
-    validFrom?: string;
+    validFrom: string;  // W3C VC Data Model 2.0
     validUntil?: string;
+    issuanceDate?: string;  // W3C VC Data Model 1.1 (optional for backward compatibility)
 }
 
 export interface CredentialPresentation  { 

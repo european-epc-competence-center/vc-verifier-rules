@@ -1,8 +1,9 @@
 import { mockCompanyPrefixCredential, mockPresentationParty } from "./mock-credential.js";
 import { checkGS1CredentialPresentationValidation, checkGS1CredentialWithoutPresentation } from "../lib/gs1-verification-service.js"
 import { getCredentialRuleSchema, getCredentialType } from "../lib/get-credential-type.js";
-import { mock_checkExternalCredential, mock_getExternalCredential, mock_jsonSchemaLoader } from "./mock-data.js";
+import { mock_checkExternalCredential, mock_getExternalCredential } from "./mock-data.js";
 import { gs1ValidatorRequest } from "../lib/types.js";
+import { realJsonSchemaLoader } from './test-helpers.js';
 
 describe('Tests for Rules Engine Subject Field Validation', () => {
 
@@ -15,7 +16,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
             gs1DocumentResolver: {
                 externalCredentialLoader: mock_getExternalCredential,
                 externalCredentialVerification: mock_checkExternalCredential,
-                externalJsonSchemaLoader: mock_jsonSchemaLoader
+                externalJsonSchemaLoader: realJsonSchemaLoader
             }
         }
 
@@ -32,7 +33,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
             gs1DocumentResolver: {
                 externalCredentialLoader: mock_getExternalCredential,
                 externalCredentialVerification: mock_checkExternalCredential,
-                externalJsonSchemaLoader: mock_jsonSchemaLoader
+                externalJsonSchemaLoader: realJsonSchemaLoader
             }
         }
 
@@ -54,7 +55,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
             gs1DocumentResolver: {
                 externalCredentialLoader: mock_getExternalCredential,
                 externalCredentialVerification: mock_checkExternalCredential,
-                externalJsonSchemaLoader: mock_jsonSchemaLoader
+                externalJsonSchemaLoader: realJsonSchemaLoader
             }
         }
 
@@ -76,7 +77,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
             gs1DocumentResolver: {
                 externalCredentialLoader: mock_getExternalCredential,
                 externalCredentialVerification: mock_checkExternalCredential,
-                externalJsonSchemaLoader: mock_jsonSchemaLoader
+                externalJsonSchemaLoader: realJsonSchemaLoader
             }
         }
 
@@ -97,7 +98,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
             gs1DocumentResolver: {
                 externalCredentialLoader: mock_getExternalCredential,
                 externalCredentialVerification: mock_checkExternalCredential,
-                externalJsonSchemaLoader: mock_jsonSchemaLoader
+                externalJsonSchemaLoader: realJsonSchemaLoader
             }
         }
 
@@ -134,7 +135,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
     })
    
     it('should get credential scheme for a credential (Company Prefix)', async () => {
-        const result = await getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, true);
+        const result = await getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, true);
         expect(result.$id).toBe("GS1-Company-Prefix-Schema-V1");
     })
 
@@ -144,7 +145,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
         const mockCompanyPrefix = JSON.parse(jsonCompanyPrefixCredential);
         mockCompanyPrefix.type = ["GS1UnknownCredential"];
 
-        const result = await getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefix, true);
+        const result = await getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefix, true);
         expect(result.$id).toBe("Generic-Schema");
     })
 
@@ -158,7 +159,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
             gs1DocumentResolver: {
                 externalCredentialLoader: mock_getExternalCredential,
                 externalCredentialVerification: mock_checkExternalCredential,
-                externalJsonSchemaLoader: mock_jsonSchemaLoader
+                externalJsonSchemaLoader: realJsonSchemaLoader
             }
         }
 
@@ -194,7 +195,7 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
             gs1DocumentResolver: {
                 externalCredentialLoader: mock_getExternalCredential,
                 externalCredentialVerification: mock_checkExternalCredential,
-                externalJsonSchemaLoader: mock_jsonSchemaLoader
+                externalJsonSchemaLoader: realJsonSchemaLoader
             }
         }
 

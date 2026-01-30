@@ -1,3 +1,41 @@
+## [Unreleased]
+
+- **BREAKING: Prioritize W3C VC Data Model 2.0 over 1.1**
+  - Changed `extVerifiableCredential` type to require `validFrom` (Data Model 2.0) instead of `issuanceDate` (Data Model 1.1)
+  - `issuanceDate` is now optional for backward compatibility
+  - Updated all mock credentials to use `validFrom`
+  - All JSON schemas already use `validFrom` - types now match the schemas
+  - Tests updated to use Data Model 2.0 conventions
+  - Focus is on Data Model 2.0; Data Model 1.1 support is secondary
+- Relax JSON Schema validation for credential `type` and `@context` fields
+  - Changed from strict `const` constraint to flexible `contains` pattern
+  - Credentials can now include additional types beyond the required ones (e.g., `["VerifiableCredential", "KeyCredential", "CustomType"]`)
+  - Credentials can now include additional context URLs beyond the required ones
+  - Still enforces that all required types and context URLs are present
+  - Updated all schema files: `gs1-key-schema.json`, `gs1-company-prefix-schema.json`, `gs1-prefix-schema.json`, `gs1-product-data-schema.json`, `gs1-organization-data-schema.json`, `gs1-product-key-schema.json`
+  - Fixes GS1-010 error: "/type must be equal to constant" and "/@context must be equal to constant" when credentials have additional types or context URLs
+- Add comprehensive test suite for additional credential types
+  - New test file: `additional-types.test.ts` with 15 tests
+  - Tests validation of real-world ProductDataCredential with additional "DataCredential" type
+  - Tests validation with additional @context URLs (e.g., render-method context)
+  - Tests type order independence and multiple additional types
+  - Tests backwards compatibility with existing credentials
+  - Includes example JWT credential: `example_product_data_vc.jwt`
+- Add @context validation test suite using real schemas
+  - New test file: `context-validation.test.ts` with 10 tests
+  - Uses actual JSON schema files instead of mocks to test real validation behavior
+  - Tests that credentials with all required contexts pass validation
+  - Tests that credentials with additional contexts are accepted
+  - Tests that credentials missing required contexts are rejected (GS1-010 error)
+  - Validates ProductDataCredential and KeyCredential context requirements
+  - Includes real-world credential validation from Tortuga de Oro production system
+- **Replace all mock schemas with actual production schemas in all tests**
+  - Created `src/tests/test-helpers.ts` with `realJsonSchemaLoader` that loads actual JSON schema files from disk
+  - Updated 7 test files to use real schemas instead of mocks: `additional-types.test.ts`, `context-validation.test.ts`, `rules-api.test.ts`, `rules-chain.test.ts`, `rules-subject.test.ts`, `getting-started.test.ts`, `example-chain.test.ts`
+  - All tests now validate against actual production behavior, not simplified mocks
+  - All 126 tests pass with real production schemas
+  - Ensures test coverage accurately reflects production validation
+
 ## [2.6.2] - 2026-01-21
 
 - Improve type safety (partial - see notes)

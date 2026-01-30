@@ -9,40 +9,48 @@
     "@context": {
       "type": "array",
       "readOnly": true,
-      "const": [
-        "https://www.w3.org/ns/credentials/v2",
-        "https://ref.gs1.org/gs1/vc/license-context"
-      ],
       "default": [
         "https://www.w3.org/ns/credentials/v2",
         "https://ref.gs1.org/gs1/vc/license-context"
       ],
       "items": {
-        "type": "string",
-        "enum": [
-          "https://www.w3.org/ns/credentials/v2",
-          "https://ref.gs1.org/gs1/vc/license-context"
-        ]
-      }
+        "type": "string"
+      },
+      "allOf": [
+        {
+          "contains": {
+            "const": "https://www.w3.org/ns/credentials/v2"
+          }
+        },
+        {
+          "contains": {
+            "const": "https://ref.gs1.org/gs1/vc/license-context"
+          }
+        }
+      ]
     },
     "type": {
       "type": "array",
       "readOnly": true,
-      "const": [
-        "VerifiableCredential",
-        "GS1PrefixLicenseCredential"
-      ],
       "default": [
         "VerifiableCredential",
         "GS1PrefixLicenseCredential"
       ],
       "items": {
-        "type": "string",
-        "enum": [
-          "VerifiableCredential",
-          "GS1PrefixLicenseCredential"
-        ]
-      }
+        "type": "string"
+      },
+      "allOf": [
+        {
+          "contains": {
+            "const": "VerifiableCredential"
+          }
+        },
+        {
+          "contains": {
+            "const": "GS1PrefixLicenseCredential"
+          }
+        }
+      ]
     },
     "id": {
       "type": "string",

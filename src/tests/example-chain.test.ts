@@ -1,6 +1,6 @@
 import { checkGS1CredentialWithoutPresentation, checkGS1CredentialPresentationValidation } from '../lib/gs1-verification-service';
 import { externalCredential, gs1RulesResult, gs1ValidatorRequest, VerifiableCredential, verifiableJwt, verifyExternalCredential } from '../lib/types';
-import { mock_jsonSchemaLoader } from './mock-data';
+import { realJsonSchemaLoader } from './test-helpers.js';
 import { normalizeCredential } from '../lib/utility/jwt-utils';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -77,7 +77,7 @@ describe('Example Chain Validation Tests', () => {
     gs1DocumentResolver: {
       externalCredentialLoader: mock_getExampleChainCredential,
       externalCredentialVerification: mock_checkExampleChainCredential,
-      externalJsonSchemaLoader: mock_jsonSchemaLoader
+      externalJsonSchemaLoader: realJsonSchemaLoader
     }
   };
 

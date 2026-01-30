@@ -65,8 +65,9 @@ describe('Tests for Credential Date Validation (L-4: validFrom must not be in fu
     expect(result.rule).toBeDefined();
   })
 
-  it('should return verified for validFrom undefined (optional field)', async () => {
+  it('should return verified for validFrom undefined (defensive check - schema validation should catch this first)', async () => {
     const mockCredential = getMockCredentialFromPresentation(mockJoseCredentialPresentationProductJwt, 0);
+    // @ts-expect-error - Testing defensive behavior when validFrom is missing (invalid per schema)
     mockCredential.validFrom = undefined;
  
     const result = await checkValidFromDate(mockCredential);

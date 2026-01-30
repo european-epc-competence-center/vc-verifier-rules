@@ -13,7 +13,7 @@ export const mockCompanyPrefixCredential = {
     "issuer": "did:web:cbpvsvip-vc.gs1us.org",
     "name": "GS1 Company Prefix License",
     "description": "THIS GS1 DIGITAL LICENSE CREDENTIAL IS FOR TESTING PURPOSES ONLY. A GS1 Company Prefix License is issued by a GS1 Member Organization or GS1 Global Office and allocated to a user company or to itself for the purpose of generating tier 1 GS1 identification keys.",
-    "issuanceDate": "2021-05-11T10:50:36.701Z",
+    "validFrom": "2021-05-11T10:50:36.701Z",
     "id": "http://did-vc.gs1us.org/vc/license/08600057694",
     "type": [
       "VerifiableCredential",
@@ -64,7 +64,7 @@ export const mockCompanyPrefixCredential = {
     "issuer": "did:web:id.gs1.org",
     "name": "GS1 Prefix License",
     "description": "FOR DEMONSTRATION PURPOSES ONLY: NOT TO BE USED FOR PRODUCTION GRADE SYSTEMS! A company prefix that complies with GS1 Standards (a “GS1 Company Prefix”) is a unique identification number that is assigned to just your company by GS1 US. It’s the foundation of GS1 Standards and can be found in all of the GS1 Identification Numbers.",
-    "issuanceDate": "2023-05-19T13:39:41.368Z",
+    "validFrom": "2023-05-19T13:39:41.368Z",
     "credentialSubject": {
       "id": "did:web:cbpvsvip-vc.gs1us.org",
       "organization": {
@@ -109,7 +109,7 @@ export const mockCompanyPrefixCredential = {
             },
             "name": "GS1 Company Prefix License",
             "description": "THIS GS1 DIGITAL LICENSE CREDENTIAL IS FOR TESTING PURPOSES ONLY. A GS1 Company Prefix License is issued by a GS1 Member Organization or GS1 Global Office and allocated to a user company or to itself for the purpose of generating tier 1 GS1 identification keys.",
-            "issuanceDate": "2021-05-11T10:50:36.701Z",
+            "validFrom": "2021-05-11T10:50:36.701Z",
             "id": "http://did-vc.gs1us.org/vc/license/08600057694",
             "type": [
                 "VerifiableCredential",
@@ -172,7 +172,7 @@ export const mockCompanyPrefixCredential = {
                 "revocationListIndex": 1195,
                 "revocationListCredential": "https://cbpvsvip-vc.dev.gs1us.org/status/2c0a1f02-d545-481b-902a-1e919cd706e2/"
             },
-            "issuanceDate": "2023-05-22T17:02:41Z",
+            "validFrom": "2023-05-22T17:02:41Z",
             "proof": {
                 "type": "Ed25519Signature2020",
                 "created": "2023-05-22T17:02:41Z",
@@ -200,7 +200,7 @@ export const mockCompanyPrefixCredential = {
             },
             "name": "GS1 Party Identification Credential",
             "description": "THIS GS1 DIGITAL LICENSE CREDENTIAL IS FOR TESTING PURPOSES ONLY. The party data credential is the Verifiable Credential that is shared with parties interested in the basic information associated with a party identified by a GLN.",
-            "issuanceDate": "2021-05-11T10:50:36.701Z",
+            "validFrom": "2021-05-11T10:50:36.701Z",
             "id": "did:key:z6MkfEHKfq5vmXXDs6AuE1xt58WySEoLPKLGLoWHHuF1pmVm",
             "type": [
                 "VerifiableCredential",
@@ -261,7 +261,7 @@ export const mockGenericCredential = {
               "VerifiableCredential"
           ],
           "issuer": "did:web:cbpvsvip-vc.gs1us.org",
-          "issuanceDate": "2023-04-18T19:12:26.549Z",
+          "validFrom": "2023-04-18T19:12:26.549Z",
           "credentialSubject": {
               "id": "did:example:123"
           },

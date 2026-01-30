@@ -2,8 +2,9 @@ import { getCredentialRuleSchema } from '../lib/get-credential-type';
 import { checkGS1CredentialPresentationValidation } from '../lib/gs1-verification-service';
 import { checkSchema } from '../lib/schema/validate-schema';
 import { normalizePresentation } from '../lib/utility/jwt-utils';
-import { mock_checkExternalCredential, mock_getExternalCredential, mock_jsonSchemaLoader } from './mock-data';
+import { mock_checkExternalCredential, mock_getExternalCredential } from './mock-data';
 import { mockJoseCredentialPresentationProductJwt } from './mock-jose-credential';
+import { realJsonSchemaLoader } from './test-helpers.js';
 
 const getMockCredentialFromPresentation = function(presentation: string, indexValue: number) { 
     const presentationToVerify = normalizePresentation(presentation);
@@ -22,7 +23,7 @@ describe('Getting Started Tests for Validing JOSE (JWT) Verifiable Credentials',
       mockCompanyPrefixCredential.credentialSubject.licenseValue = "0562";
       mockCompanyPrefixCredential.credentialSubject.alternativeLicenseValue = "562";
    
-      const credentialSchema = getCredentialRuleSchema(mock_jsonSchemaLoader, mockCompanyPrefixCredential, false);
+      const credentialSchema = getCredentialRuleSchema(realJsonSchemaLoader, mockCompanyPrefixCredential, false);
       const result = await checkSchema(credentialSchema, mockCompanyPrefixCredential);
       expect(result.verified).toBe(true);
       expect(result.errors.length).toBe(0);
@@ -34,7 +35,7 @@ describe('Getting Started Tests for Validing JOSE (JWT) Verifiable Credentials',
         gs1DocumentResolver: {
             externalCredentialLoader: mock_getExternalCredential,
             externalCredentialVerification: mock_checkExternalCredential,
-            externalJsonSchemaLoader: mock_jsonSchemaLoader
+            externalJsonSchemaLoader: realJsonSchemaLoader
         }
     }, mockJoseCredentialPresentationProductJwt);
 

@@ -230,7 +230,7 @@
       "GS1PrefixLicenseCredential"
     ],
     "issuer": {
-      "id": "did:web:id.gs1.org",
+      "id": "did:web:vc.gs1.org",
       "name": "GS1 Global"
     },
     "name": "GS1 Prefix License",

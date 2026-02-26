@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+- Fix GS1 Global DID to `did:web:id.gs1.org` (upstream value), removing configurable `GS1_GLOBAL_DID` env var override and warning block
+  - Updated example chain `prefix_license_credential.json` issuer accordingly
+  - Updated `mockPrefixLicenseCredential` issuer to `did:web:id.gs1.org`
+
 - **BREAKING: Prioritize W3C VC Data Model 2.0 over 1.1**
   - Changed `extVerifiableCredential` type to require `validFrom` (Data Model 2.0) instead of `issuanceDate` (Data Model 1.1)
   - `issuanceDate` is now optional for backward compatibility

@@ -7,9 +7,6 @@ import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
-// Set the GS1 Global DID for test environment
-process.env.GS1_GLOBAL_DID = "did:web:company-wallet-dev.prod-k8s.eecc.de:api:registry:did:gs1_global";
-
 // Load the example credentials from files
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

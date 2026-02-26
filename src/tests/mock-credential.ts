@@ -61,7 +61,7 @@ export const mockCompanyPrefixCredential = {
       "VerifiableCredential",
       "GS1PrefixLicenseCredential"
     ],
-    "issuer": "did:web:vc.gs1.org",
+    "issuer": "did:web:id.gs1.org",
     "name": "GS1 Prefix License",
     "description": "FOR DEMONSTRATION PURPOSES ONLY: NOT TO BE USED FOR PRODUCTION GRADE SYSTEMS! A company prefix that complies with GS1 Standards (a “GS1 Company Prefix”) is a unique identification number that is assigned to just your company by GS1 US. It’s the foundation of GS1 Standards and can be found in all of the GS1 Identification Numbers.",
     "validFrom": "2023-05-19T13:39:41.368Z",
@@ -77,7 +77,7 @@ export const mockCompanyPrefixCredential = {
     "proof": {
       "type": "Ed25519Signature2020",
       "created": "2023-05-19T13:39:41Z",
-      "verificationMethod": "did:web:vc.gs1.org#z6MkkzYByKSsaWusRbYNZGAMvdd5utsPqsGKvrc7T9jyvUrN",
+      "verificationMethod": "did:web:id.gs1.org#z6MkkzYByKSsaWusRbYNZGAMvdd5utsPqsGKvrc7T9jyvUrN",
       "proofPurpose": "assertionMethod",
       "proofValue": "z56N5j6WZRwAng8f12RNNPStBBmGLaozHkdPtDmMLwZmqo1EXW3juFZYpeyU7QRh6NRGxJtxMJvAXPq4PveR2bR7m"
     }

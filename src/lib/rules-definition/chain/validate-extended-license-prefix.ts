@@ -5,22 +5,8 @@ import { gs1RulesResult, VerifiableCredential } from "../../types.js";
 import { checkIssuerToSubjectId, checkIssuerToSubjectId_schema, compareLicenseValue, getCredentialIssuer } from "./shared-extended.js";
 import { normalizeCredential } from "../../utility/jwt-utils.js";
 
-const DEFAULT_GS1_GLOBAL_DID = "did:web:vc.gs1.org";
 // License Prefix Credential Must be issued by GS1 Global
-const getGS1GlobalDID = () => process.env.GS1_GLOBAL_DID || DEFAULT_GS1_GLOBAL_DID;
-
-// Check if GS1_GLOBAL_DID is set to a custom value and warn (custom values are dangerous)
-(() => {
-    if (process.env.GS1_GLOBAL_DID && process.env.GS1_GLOBAL_DID !== DEFAULT_GS1_GLOBAL_DID) {
-        console.warn('\n' + '='.repeat(80));
-        console.warn('⚠️  WARNING: GS1_GLOBAL_DID is set to a CUSTOM value!');
-        console.warn(`⚠️  Current value: "${process.env.GS1_GLOBAL_DID}"`);
-        console.warn(`⚠️  Default value: "${DEFAULT_GS1_GLOBAL_DID}"`);
-        console.warn('⚠️  Using a custom GS1 Global DID may be DANGEROUS and can result in false validation!');
-        console.warn('⚠️  Only use custom values for testing or development purposes.');
-        console.warn('='.repeat(80) + '\n');
-    }
-})();
+const GS1_GLOBAL_DID = "did:web:id.gs1.org";
 
 // Compare company prefix license to prefix license value to validate the license value starts with prefix license value
 // Developer Notes: CredentialSubject is defined as any because the credential subject is dynamic based on JSON-LD for a credential
@@ -83,7 +69,7 @@ export async function validateExtendedLicensePrefix(credentialType: string,
 
     // Verify Prefix License Credential Issuer is GS1 Global
     const extendedCredentialIssuer = getCredentialIssuer(extendedCredential);
-    if (extendedCredentialIssuer !== getGS1GlobalDID()) {
+    if (extendedCredentialIssuer !== GS1_GLOBAL_DID) {
         gs1CredentialCheck.verified = false;
         gs1CredentialCheck.errors.push(invalidIssueForPrefixLicense);
         return gs1CredentialCheck;
@@ -125,7 +111,7 @@ export function validateExtendedLicensePrefix_JsonSchema(credentialType: string,
 
     // Verify Prefix License Credential Issuer is GS1 Global
     const extendedCredentialIssuer = getCredentialIssuer(extendedCredential);
-    if (extendedCredentialIssuer !== getGS1GlobalDID()) {
+    if (extendedCredentialIssuer !== GS1_GLOBAL_DID) {
         gs1CredentialCheck.verified = false;
         gs1CredentialCheck.errors.push(invalidIssueForPrefixLicense);
         return gs1CredentialCheck;
@@ -156,7 +142,7 @@ export function validatePrefixRootOfTrust_JsonSchema(credentialType: string, cre
 
     // Verify Prefix License Credential Issuer is GS1 Global
     const extendedCredentialIssuer = getCredentialIssuer(credential);
-    if (extendedCredentialIssuer !== getGS1GlobalDID()) {
+    if (extendedCredentialIssuer !== GS1_GLOBAL_DID) {
         gs1CredentialCheck.verified = false;
         gs1CredentialCheck.errors.push(invalidIssueForPrefixLicense);
         return gs1CredentialCheck;

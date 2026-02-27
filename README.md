@@ -1,5 +1,5 @@
 # Overview 
-The GS1 Decentralized Identifier & Verifiable Credentials solution has been created to provide guidance on how to verify Verifiable Credentials (VC) issued for the GS1 Verifiable Credentials Digital License ecosystem.
+The GS1 US Decentralized Identifier & Verifiable Credentials solution has been created to provide guidance on how to verify Verifiable Credentials (VC) issued for the GS1 Verifiable Credentials Digital License ecosystem. The library is **FOR DEMONSTRATION PURPOSES ONLY: NOT TO BE USED FOR PRODUCTION GRADE SYSTEMS!**
 
 The GS1 License ecosystem ensures globally unique identification of products, asserts, locations, and entities for global trade.  The GS1 Digital license ecosystem expresses existing licenses as W3C verifiable credentials.   By assembling a chain of these credentials, product, location, and asset assertions can be digitally verified as authentic.  This library supports the validation of these credentials chains.
 
@@ -7,8 +7,10 @@ This solutions support the [WC3 Verifiable Credentials Data Model 2.0](https://w
 
 The GS1 US Verifiable Credentials Verification solution is divided into two libraries. 
 
-- [vc-verifier](https://github.com/european-epc-competence-center/vc-verifier): THe EECC open source verifier capable of general purpose VCs as well as GS1 specific VCs using this package. 
-- [vc-verifier-rules](https://github.com/european-epc-competence-center/vc-verifier-rules): This is the rules library for verifying GS1 Based Verifiable Credentials. This library will validate GS1 based VCs and ensure they follow the level four business rules defined by the GS1 Data Model Document. Forked from [@gs1-us/vc-verifier-rules](https://github.com/gs1us-technology/vc-verifier-rules)
+- [vc-verifier-core](https://github.com/gs1us-technology/vc-verifier-core): This is the core library for verifying GS1 US Based Verifiable Credentials. This library is the main library to use for verifying VCs. The library will perform proof and revocation checks on all presented VCs. 
+- [vc-verifier-rules](https://github.com/gs1us-technology/vc-verifier-rules): This is the rules library for verifying GS1 US Based Verifiable Credentials. This library will validate GS1 based VCs and ensure they follow the level four business rules defined by the GS1 Data Model Document.
+
+**Notes**: To run the libraries locally you will need to clone both repos into a parent Folder (e.g. gs1-us). The vc-verifier-core library has a dependency on the vc-verifier-rules and requires running a local NPM Install. 
 
 See the using the library section for more details.
 
@@ -22,7 +24,7 @@ When a ProductDataCredential is passed in its subject field validation requires 
 
 To validate a ProductDataCredential in addition to checking its related key credential is valid, the company prefix associated with the key credential must be resolved and required checks for the issuer of the ProductDataCredential -> GS1KeyCredential -> GS1CompanyPrefix -> LicenseCredential. 
 
-A Company Prefix credential must be issued by a GS1 Member Organization (e.g. GS1 US) or GS1 Global. Part of the validation process for a GS1 Company Prefix credential includes resolving the associated GS1 Prefix License Credential issued by GS1 Global DID **did:web:vc.gs1.org**. 
+A Company Prefix credential must be issued by a GS1 Member Organization (e.g. GS1 US) or GS1 Global. Part of the validation process for a GS1 Company Prefix credential includes resolving the associated GS1 Prefix License Credential issued by GS1 Global DID **did:web:id.gs1.org**. 
 
 If any of the credentials in the chain, can not be resolved, verified or pass the GS1 credential Rules the whole chain will not be verified. 
 

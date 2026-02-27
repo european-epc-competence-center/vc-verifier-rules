@@ -1,5 +1,5 @@
 {
-  "name": "@eecc/vc-verifier-rules",
+  "name": "@gs1us/vc-verifier-rules",
   "version": "2.6.2",
   "description": "GS1 US Rules Verification Library for validating GS1 based verifiable credentials.",
   "main": "./dist/index.js",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/european-epc-competence-center/vc-verifier-rules.git"
+    "url": "git+https://github.com/gs1us-technology/vc-verifier-rules.git"
   },
   "keywords": [
     "verifiable",

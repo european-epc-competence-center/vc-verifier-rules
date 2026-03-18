@@ -50,7 +50,8 @@
     "ajv-dist": "^8.17.1",
     "ajv-errors": "^3.0.0",
     "ajv-formats": "^3.0.1",
-    "digital-link.js": "^1.4.3"
+    "digital-link.js": "^1.4.3",
+    "jose": "^6.2.1"
   },
   "devDependencies": {
     "@jest/globals": "^30.2.0",

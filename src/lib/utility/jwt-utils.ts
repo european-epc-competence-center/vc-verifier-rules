@@ -1,35 +1,28 @@
 import { CredentialPresentation, VerifiableCredential, verifiableJwt } from "../types.js";
+import { decodeJwt } from "jose";
 
 // Utility Function to Decode a JWT Token into a verifiablePresentation
 export const getDecodedPresentation = function getDecodedJwt(token: string): CredentialPresentation { 
 
-    const jwt = atob(token.split('.')[1]);
-    const jwtPresentation = JSON.parse(jwt);
+    const jwtPresentation = decodeJwt(token);
+    const verifiableCredential: VerifiableCredential[] = [];
 
-    const decodedPresentation = {...jwtPresentation};
-    decodedPresentation.verifiableCredential = [];
-
-    jwtPresentation.verifiableCredential.forEach((vc: verifiableJwt | VerifiableCredential) => {
+    (jwtPresentation.verifiableCredential as (verifiableJwt | VerifiableCredential)[]).forEach((vc) => {
         if (typeof vc === 'object' && vc.id && typeof vc.id === 'string' && !('credentialSubject' in vc && vc.id.split(';')[0] === 'data:application/vc+jwt')) {
             const parseOutToken = vc.id.split(';')[1];
-            const jwt = atob(parseOutToken.split('.')[1]);
-            const jsonJwt = JSON.parse(jwt);
-            decodedPresentation.verifiableCredential.push(jsonJwt);
+            verifiableCredential.push(decodeJwt(parseOutToken) as VerifiableCredential);
         } else {
-            decodedPresentation.verifiableCredential.push(vc);
+            verifiableCredential.push(vc as VerifiableCredential);
         }
         
     });
 
-    return decodedPresentation;
+    return {...jwtPresentation, verifiableCredential} as CredentialPresentation;
 }
 
 export const getDecodedCredential = function getDecodedJwt(token: string): VerifiableCredential { 
 
-    const jwt = atob(token.split('.')[1]);
-    const jwtCredential = JSON.parse(jwt);
-
-    return jwtCredential;
+    return decodeJwt(token) as VerifiableCredential;
 }
 
 // Utility function to determine if a credential is a JWT string

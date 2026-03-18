@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+- Fix JWT payload decoding to correctly handle Base64url encoding
+  - Replaced `atob` + `JSON.parse` with `jose`'s `decodeJwt` in `jwt-utils.ts`
+  - `atob` only handles standard Base64; JWTs use Base64url (`-` and `_` instead of `+` and `/`, no padding)
+  - Affects `getDecodedPresentation`, `getDecodedCredential`, and inner VC decoding in presentation parsing
 - **BREAKING: Prioritize W3C VC Data Model 2.0 over 1.1**
   - Changed `extVerifiableCredential` type to require `validFrom` (Data Model 2.0) instead of `issuanceDate` (Data Model 1.1)
   - `issuanceDate` is now optional for backward compatibility

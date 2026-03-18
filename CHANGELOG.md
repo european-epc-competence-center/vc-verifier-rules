@@ -1,4 +1,4 @@
-## [Unreleased]
+## [2.7.0] - 2026-03-18
 
 - Fix JWT payload decoding to correctly handle Base64url encoding
   - Replaced `atob` + `JSON.parse` with `jose`'s `decodeJwt` in `jwt-utils.ts`
@@ -39,6 +39,7 @@
   - All tests now validate against actual production behavior, not simplified mocks
   - All 126 tests pass with real production schemas
   - Ensures test coverage accurately reflects production validation
+
 
 ## [2.6.2] - 2026-01-21
 

@@ -286,7 +286,8 @@ https://id.gs1.org/{AI}/{KEY_VALUE}
 
 **Validation**: 
 - Final credential in chain MUST be GS1PrefixLicenseCredential
-- GS1PrefixLicenseCredential MUST be issued by GS1 Global DID
-- Checked in `validateCredentialChain()` when reaching root
+- GS1PrefixLicenseCredential MUST be issued by GS1 Global DID (GS1-140)
+- Checked via `validateExtendedLicensePrefix()` when prefix is a parent in a chain
+- Checked via `validatePrefixRootOfTrust()` when prefix is presented on its own (`validateCredentialChain()` early exit)
 
-**Failure**: Error code GS1-130 if root is not GS1PrefixLicenseCredential
+**Failure**: Error code GS1-130 if root is not GS1PrefixLicenseCredential; GS1-140 if issuer is not GS1 Global DID

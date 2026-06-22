@@ -90,6 +90,16 @@ describe('Example Chain Validation Tests', () => {
     expect(result.errors.length).toBe(0);
   });
 
+  it('should reject a Prefix License Credential with an invalid root of trust issuer', async () => {
+    const invalidPrefixCredential = JSON.parse(JSON.stringify(prefixLicenseCredential));
+    invalidPrefixCredential.issuer = { id: 'did:web:fake-gs1-global.example', name: 'Fake GS1 Global' };
+
+    const result = await checkGS1CredentialWithoutPresentation(validatorRequest, invalidPrefixCredential);
+
+    expect(result.verified).toBe(false);
+    expect(result.errors.some((error) => error.code === 'GS1-140')).toBe(true);
+  });
+
   it('should validate the GCP License Credential extending from Prefix', async () => {
     const result = await checkGS1CredentialWithoutPresentation(validatorRequest, gcpLicenseCredential);
     

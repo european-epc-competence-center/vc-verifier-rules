@@ -1,4 +1,5 @@
 import { rulesEngineManager } from "../rules-definition/rules-manager.js";
+import { validatePrefixRootOfTrust } from "../rules-definition/chain/validate-extended-license-prefix.js";
 import { getCredentialRuleSchemaChain, getCredentialType, getCredentialRuleSchema, GS1_PREFIX_LICENSE_CREDENTIAL } from "../get-credential-type.js";
 import { CredentialSubjectSchema, gs1CredentialSchemaChain, propertyMetaData } from "../rules-schema/rules-schema-types.js";
 import { invalidGS1CredentialTypes, invalidRootCredentialType, unsupportedCredentialChain, validationChainFailure } from "./gs1-credential-errors.js";
@@ -108,8 +109,14 @@ export async function validateCredentialChain(externalCredentialVerification: ve
         gs1CredentialCheck.errors.push(validUntilResult.rule);
     }
 
-    // When there is no extended credential exit out of the chain
+    // When there is no extended credential, validate root of trust for standalone prefix licenses
     if (!decodedExtendedCredential) {
+        if (credentialSchema.title === GS1_PREFIX_LICENSE_CREDENTIAL) {
+            const rootOfTrustResult = validatePrefixRootOfTrust(credentialSchema.title, decodedCredential);
+            if (!rootOfTrustResult.verified) {
+                gs1CredentialCheck.errors = gs1CredentialCheck.errors.concat(rootOfTrustResult.errors);
+            }
+        }
         if (gs1CredentialCheck.errors.length > 0) {
             gs1CredentialCheck.verified = false;
         }

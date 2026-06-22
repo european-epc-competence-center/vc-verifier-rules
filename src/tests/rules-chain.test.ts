@@ -109,6 +109,24 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
         expect(resultSchema.title).toBe("genericCredentialSchema");
     })
 
+    it('should validate standalone Prefix License Credential root of trust', async () => {
+        const mockPresentation = { ...mockPresentationParty, verifiableCredential: [mockPrefixLicenseCredential] };
+        const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentation, mockPrefixLicenseCredential);
+
+        const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true, realJsonSchemaLoader, true);
+        expect(result.verified).toBe(true);
+    })
+
+    it('should reject standalone Prefix License Credential with wrong issuer', async () => {
+        const invalidPrefixLicense = { ...mockPrefixLicenseCredential, issuer: "did:web:fake.gs1.org" };
+        const mockPresentation = { ...mockPresentationParty, verifiableCredential: [invalidPrefixLicense] };
+        const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentation, invalidPrefixLicense);
+
+        const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true, realJsonSchemaLoader, true);
+        expect(result.verified).toBe(false);
+        expect(result.errors.some(error => error.code === "GS1-140")).toBe(true);
+    })
+
     it('should validate credential chain for Company Prefix and extended License Prefix Credential', async () => {
         // In line update presentation to only include the company prefix credential
         const mockPresentation  = {...mockPresentationParty, verifiableCredential: [mockCompanyPrefixCredential]};

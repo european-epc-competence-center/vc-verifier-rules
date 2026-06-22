@@ -143,7 +143,9 @@ The library implements a multi-layered validation approach for GS1 credentials:
    - Call checkSchema() with Ajv
    - Accumulate schema errors
 
-3. If no extended credential: return result
+3. If no extended credential:
+   - For standalone GS1PrefixLicenseCredential: call validatePrefixRootOfTrust() (GS1-140 / PL-2)
+   - Return result
 
 4. Validate chain relationships:
    - Check parent credential type is valid for child

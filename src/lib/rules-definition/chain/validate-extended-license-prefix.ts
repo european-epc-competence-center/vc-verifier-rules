@@ -149,18 +149,18 @@ export function validateExtendedLicensePrefix_JsonSchema(credentialType: string,
 }
 
 
-// Validate the extended credentials for Prefix License Credential
-export function validatePrefixRootOfTrust_JsonSchema(credentialType: string, credential: VerifiableCredential): gs1RulesResult {
-
+// Validate root of trust when a GS1PrefixLicenseCredential is presented on its own
+export function validatePrefixRootOfTrust(credentialType: string, credential: VerifiableCredential): gs1RulesResult {
     const gs1CredentialCheck: gs1RulesResult = { credentialId: credential.id, credentialName: credentialType, verified: true, errors: []};
 
-    // Verify Prefix License Credential Issuer is GS1 Global
-    const extendedCredentialIssuer = getCredentialIssuer(credential);
-    if (extendedCredentialIssuer !== getGS1GlobalDID()) {
+    const credentialIssuer = getCredentialIssuer(credential);
+    if (credentialIssuer !== getGS1GlobalDID()) {
         gs1CredentialCheck.verified = false;
         gs1CredentialCheck.errors.push(invalidIssueForPrefixLicense);
-        return gs1CredentialCheck;
     }
-        
+
     return gs1CredentialCheck;
 }
+
+/** @deprecated Use validatePrefixRootOfTrust */
+export const validatePrefixRootOfTrust_JsonSchema = validatePrefixRootOfTrust;

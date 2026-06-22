@@ -63,8 +63,8 @@ All GS1 validation errors use format: `GS1-XXX`
 ### GS1-140: Invalid Prefix License Issuer
 **Code**: `invalidIssueForPrefixLicense`  
 **Rule**: "The issuer of prefix license credential does not match the expected value."  
-**Trigger**: GS1PrefixLicenseCredential not issued by GS1 Global DID  
-**File**: `validate-extended-license-prefix.ts`
+**Trigger**: GS1PrefixLicenseCredential not issued by GS1 Global DID (as parent in chain or standalone credential)  
+**File**: `validate-extended-license-prefix.ts` (`validateExtendedLicensePrefix`, `validatePrefixRootOfTrust`)
 
 ---
 

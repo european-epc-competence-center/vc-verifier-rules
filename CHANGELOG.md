@@ -1,9 +1,10 @@
-## [Unreleased]
+## [2.7.1] - 2026-06-22
 
 - Fix missing root of trust validation when a `GS1PrefixLicenseCredential` is presented on its own
   - Standalone prefix license credentials now verify the issuer matches the configured GS1 Global DID (GS1-140 / PL-2)
   - Previously this check only ran when the prefix credential appeared as a parent in a credential chain
   - Wired up `validatePrefixRootOfTrust` in `validateCredentialChain`
+
 
 ## [2.7.0] - 2026-03-18
 

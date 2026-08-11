@@ -43,6 +43,12 @@ export async function buildCredentialChain(externalCredentialLoader: externalCre
         const extendsCredentialMetaData = credentialSubjectSchemaRule.extendsCredentialType;
         if (extendsCredentialMetaData) {
             const extendedCredentialValue = credentialSubject.extendsCredential || credentialSubject.keyAuthorization;
+
+            // Optional parent only when optional === true (default false / undefined → required)
+            if (!extendedCredentialValue && extendsCredentialMetaData.optional === true) {
+                return credentialChain;
+            }
+
             const extendedCredentialResult = await resolveExternalCredential(externalCredentialLoader, verifiablePresentation, extendedCredentialValue);
             
             if (extendedCredentialResult.credential) {

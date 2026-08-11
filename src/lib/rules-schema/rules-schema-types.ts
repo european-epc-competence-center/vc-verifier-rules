@@ -2,6 +2,8 @@
 export type propertyMetaData = { 
     type: string[];
     rule?: string;
+    /** Defaults to false. Only `true` allows missing extendsCredential/keyAuthorization (standalone verification). */
+    optional?: boolean;
 }
 
 // Property Meta Data Type for Child Credential Types

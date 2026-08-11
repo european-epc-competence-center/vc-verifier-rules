@@ -280,19 +280,20 @@ https://id.gs1.org/{AI}/{KEY_VALUE}
 
 **Purpose**: Carries verifiable EPCIS event data (ObjectEvent, AggregationEvent, etc.).
 
-**Chain**: Child of `KeyCredential` (same rule as ProductDataCredential: `KeyDataCredential`).
+**Chain**: Optional child of `KeyCredential` (`KeyDataCredential` rule; `extendsCredentialType.optional: true`).
 
-**Parent link fields** (required for chain validation):
-- `credentialSubject.keyAuthorization` **or** `credentialSubject.extendsCredential` → URL/id of parent KeyCredential
-- Looked up in `buildCredentialChain()`; if missing → **GS1-010** ("External Credential URL is missing or undefined")
+**Parent link fields**:
+- If `credentialSubject.keyAuthorization` **or** `credentialSubject.extendsCredential` is present → resolve parent and run full chain (key → company prefix → prefix)
+- If absent → **standalone** verification (no GS1-010; chain not loaded)
+- Present but unresolvable → still GS1-010 / resolve error
 
-**Subject identity** (same `KeyDataCredential` rule as ProductData):
+**Subject identity** (only when parent is present — same `KeyDataCredential` rule as ProductData):
 - `credentialSubject.sameAs` **or** `credentialSubject.id` must be the GS1 Digital Link of the authorized key
 - Compared to parent KeyCredential `credentialSubject.id` via `validateDataToKeyCredential()` (`validate-extended-data-key.ts`)
 - Mismatch / non-Digital-Link → `dataMismatchBetweenDataKeyCredential`
-- Event UUID as `id` is **wrong** for chain validation; put the event id under `epcis.eventID` (or similar), not as the subject key identity
+- Without parent link, subject `id` need not be a Digital Link (e.g. event UUID is fine)
 
-**Defined in**: `gs1-chain-rules.ts` (`EpcisCredential`), resolve path in `validate-extended-credential.ts` / `resolve-external-credential.ts`
+**Defined in**: `gs1-chain-rules.ts` (`EpcisCredential`), optional skip in `buildCredentialChain()` (`validate-extended-credential.ts`)
 
 ---
 

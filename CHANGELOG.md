@@ -1,3 +1,11 @@
+## [Unreleased]
+
+- Allow `EpcisCredential` to verify without `keyAuthorization` / `extendsCredential`
+  - Parent KeyCredential chain is optional; missing link → standalone verification (schema/dates only, no key / company prefix / prefix load)
+  - When `keyAuthorization` (or `extendsCredential`) is present, full `KeyDataCredential` chain validation still applies
+  - Missing but required parent links for other credential types are unchanged (still GS1-010)
+
+
 ## [2.7.1] - 2026-06-22
 
 - Fix missing root of trust validation when a `GS1PrefixLicenseCredential` is presented on its own

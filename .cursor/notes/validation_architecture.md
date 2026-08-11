@@ -84,7 +84,8 @@ The library implements a multi-layered validation approach for GS1 credentials:
    a. Resolve credential (from presentation or external)
    b. Recursively call buildCredentialChain() on extended credential
    c. Attach as extendedCredentialChain
-4. Return credentialChainMetaData
+4. If parent link missing and extendsCredentialType.optional (EpcisCredential): skip — standalone chain
+5. Return credentialChainMetaData
 ```
 
 **Type**: `credentialChainMetaData`
@@ -103,7 +104,7 @@ The library implements a multi-layered validation approach for GS1 credentials:
 - `inPresentation` flag determines if external verification needed
 - Chain terminates at root credential (GS1PrefixLicenseCredential)
 - Errors during resolution stored in `error` field
-
+- `extendsCredentialType.optional` defaults to false; only explicit `optional: true` (EpcisCredential) skips missing parent URL
 ---
 
 ### `resolveExternalCredential()`

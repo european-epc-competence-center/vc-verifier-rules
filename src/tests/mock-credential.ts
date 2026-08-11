@@ -242,6 +242,43 @@ export const mockCompanyPrefixCredential = {
     }
 }
 
+/** Standalone EpcisCredential without keyAuthorization (optional parent). */
+export const mockEpcisCredentialStandalone = {
+    "@context": [
+        "https://www.w3.org/ns/credentials/v2",
+        "https://ref.gs1.org/gs1/vc/declaration-context"
+    ],
+    "id": "https://example.com/vc/epcis/standalone",
+    "type": ["VerifiableCredential", "EpcisCredential"],
+    "issuer": { "id": "did:web:cbpvsvip-vc.gs1us.org" },
+    "validFrom": "2026-01-01T00:00:00Z",
+    "credentialSubject": {
+        "id": "urn:uuid:c36cb056-6827-4c3c-805c-f3771b26e46b",
+        "epcis": {
+            "eventID": "urn:uuid:c36cb056-6827-4c3c-805c-f3771b26e46b",
+            "type": "ObjectEvent",
+            "action": "ADD",
+            "bizStep": "commissioning"
+        }
+    }
+};
+
+/** EpcisCredential linked to KeyCredential via keyAuthorization (full chain). */
+export const mockEpcisCredentialWithKey = {
+    ...mockEpcisCredentialStandalone,
+    "id": "https://example.com/vc/epcis/with-key",
+    "credentialSubject": {
+        "id": "https://id.gs1.org/417/0860005769407",
+        "keyAuthorization": "did:key:z6MkkzTNsyFfx4VQFkSs3R7q8nKN5twGrM8538Xu7YXym6mW",
+        "epcis": {
+            "eventID": "urn:uuid:c36cb056-6827-4c3c-805c-f3771b26e46b",
+            "type": "ObjectEvent",
+            "action": "ADD",
+            "bizStep": "commissioning"
+        }
+    }
+};
+
 export const mockGenericCredential = {
   "@context": [
       "https://www.w3.org/2018/credentials/v1"

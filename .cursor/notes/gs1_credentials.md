@@ -153,8 +153,8 @@ GS1PrefixLicenseCredential (Root - GS1 Global)
 GS1CompanyPrefixLicenseCredential (GS1 Member Org)
   ↑ extendsCredential          ↑ keyAuthorization
 KeyCredential ←────────────── OrganizationDataCredential
-  ↑ keyAuthorization
-ProductDataCredential
+  ↑ keyAuthorization           ↑ keyAuthorization
+ProductDataCredential          EpcisCredential
 ```
 
 ### Chain Validation Rules
@@ -273,6 +273,26 @@ https://id.gs1.org/{AI}/{KEY_VALUE}
 
 **Custom Ajv Keywords**: Defined in `ajv-gs1-extension.ts`
 - Validates during JSON Schema validation phase
+
+---
+
+### 7. EpcisCredential
+
+**Purpose**: Carries verifiable EPCIS event data (ObjectEvent, AggregationEvent, etc.).
+
+**Chain**: Child of `KeyCredential` (same rule as ProductDataCredential: `KeyDataCredential`).
+
+**Parent link fields** (required for chain validation):
+- `credentialSubject.keyAuthorization` **or** `credentialSubject.extendsCredential` → URL/id of parent KeyCredential
+- Looked up in `buildCredentialChain()`; if missing → **GS1-010** ("External Credential URL is missing or undefined")
+
+**Subject identity** (same `KeyDataCredential` rule as ProductData):
+- `credentialSubject.sameAs` **or** `credentialSubject.id` must be the GS1 Digital Link of the authorized key
+- Compared to parent KeyCredential `credentialSubject.id` via `validateDataToKeyCredential()` (`validate-extended-data-key.ts`)
+- Mismatch / non-Digital-Link → `dataMismatchBetweenDataKeyCredential`
+- Event UUID as `id` is **wrong** for chain validation; put the event id under `epcis.eventID` (or similar), not as the subject key identity
+
+**Defined in**: `gs1-chain-rules.ts` (`EpcisCredential`), resolve path in `validate-extended-credential.ts` / `resolve-external-credential.ts`
 
 ---
 

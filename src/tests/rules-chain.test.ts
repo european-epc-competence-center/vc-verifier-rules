@@ -2,7 +2,7 @@ import { resolveExternalCredential } from '../lib/engine/resolve-external-creden
 import { buildCredentialChain, credentialChainMetaData, validateCredentialChain } from '../lib/engine/validate-extended-credential';
 import { CredentialSubjectSchema } from '../lib/rules-schema/rules-schema-types';
 import { externalCredential, gs1CredentialValidationRule, gs1RulesResult, VerifiableCredential, verifyExternalCredential, verifiableJwt } from '../lib/types';
-import { mockCompanyPrefixCredential, mockGenericCredential, mockPrefixLicenseCredential, mockPresentationParty } from './mock-credential';
+import { mockCompanyPrefixCredential, mockEpcisCredentialStandalone, mockEpcisCredentialWithKey, mockGenericCredential, mockPrefixLicenseCredential, mockPresentationParty } from './mock-credential';
 import { realJsonSchemaLoader } from './test-helpers.js';
 import { validateExtendedCompanyPrefixCredential } from '../lib/rules-definition/chain/validate-extended-company-prefix';
 import { validateExtendedKeyDataCredential } from '../lib/rules-definition/chain/validate-extended-data-key';
@@ -154,24 +154,25 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
         const mockPresentation  = {...mockPresentationParty, verifiableCredential: [mockCompanyPrefixCredential]};
         const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentation, mockCompanyPrefixCredential);
 
-        // Mock Overrides for Testing Different Scenarios
-        const schemaSubject = resultBuildChain.credentialSubjectSchema as CredentialSubjectSchema;
+        // Clone schema before mutating so shared gs1CredentialChainRules are not polluted
+        const schemaSubject = structuredClone(resultBuildChain.credentialSubjectSchema) as CredentialSubjectSchema;
         if (schemaSubject && schemaSubject.extendsCredentialType) {
             schemaSubject.extendsCredentialType.type = ["mock"];
         }
+        resultBuildChain.credentialSubjectSchema = schemaSubject;
+        resultBuildChain.schema = { ...resultBuildChain.schema, extendsCredentialType: schemaSubject.extendsCredentialType };
 
         const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true, realJsonSchemaLoader, true);
         expect(result.verified).toBe(false);
     })
 
     it('should not validate credential chain for Company Prefix because child type is invalid', async () => {
-        // In line update presentation to only include the company prefix credential
-        const mockPresentation  = {...mockPresentationParty, verifiableCredential: [mockCompanyPrefixCredential]};
+        // Clone credential so shared mockCompanyPrefixCredential.type is not mutated
+        const mockCompanyPrefix = structuredClone(mockCompanyPrefixCredential);
+        mockCompanyPrefix.type = ["mock"];
+        const mockPresentation  = {...mockPresentationParty, verifiableCredential: [mockCompanyPrefix]};
 
-        // Mock Overrides for Testing Different Scenarios
-        mockPresentation.verifiableCredential[0].type = ["mock"];
-
-        const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentation, mockCompanyPrefixCredential);
+        const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentation, mockCompanyPrefix);
         const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true, realJsonSchemaLoader, true);
         expect(result.verified).toBe(false);
     })
@@ -219,6 +220,47 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
         const resultBuildChain: credentialChainMetaData = await buildCredentialChain(mock_getExternalCredential, mockPresentationParty, mockDataCredential);
 
         const result = await validateExtendedKeyDataCredential("KeyCredential", resultBuildChain);
+        expect(result.verified).toBe(true);
+    })
+
+    it('should allow standalone EpcisCredential without keyAuthorization', async () => {
+        const mockPresentation = { ...mockPresentationParty, verifiableCredential: [mockEpcisCredentialStandalone] };
+        const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentation, mockEpcisCredentialStandalone);
+
+        expect(resultBuildChain.error).toBeUndefined();
+        expect(resultBuildChain.extendedCredentialChain).toBeUndefined();
+
+        const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true, realJsonSchemaLoader, true);
+        expect(result.verified).toBe(true);
+        expect(result.credentialName).toBe("EpcisCredential");
+    })
+
+    it('should still fail EpcisCredential when keyAuthorization is present but cannot be resolved', async () => {
+        const epcisWithMissingKey = {
+            ...mockEpcisCredentialStandalone,
+            credentialSubject: {
+                ...mockEpcisCredentialStandalone.credentialSubject,
+                keyAuthorization: "https://example.com/missing-key-credential"
+            }
+        };
+        const mockPresentation = { ...mockPresentationParty, verifiableCredential: [epcisWithMissingKey] };
+        const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentation, epcisWithMissingKey);
+
+        expect(resultBuildChain.error).toBeDefined();
+        expect(resultBuildChain.error).toContain("can not be resolved");
+    })
+
+    it('should build and validate EpcisCredential chain when keyAuthorization is present', async () => {
+        const mockPresentation = {
+            ...mockPresentationParty,
+            verifiableCredential: [...mockPresentationParty.verifiableCredential, mockEpcisCredentialWithKey]
+        };
+        const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentation, mockEpcisCredentialWithKey);
+
+        expect(resultBuildChain.error).toBeUndefined();
+        expect(resultBuildChain.extendedCredentialChain).toBeDefined();
+
+        const result = await validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true, realJsonSchemaLoader, true);
         expect(result.verified).toBe(true);
     })
 

@@ -37,7 +37,9 @@ export const gs1CredentialChainRules = {
     },
     EpcisCredential: {
         title: "EpcisCredential",
-        extendsCredentialType: { type: ["KeyCredential"], rule: "KeyDataCredential"},
+        // Parent KeyCredential is optional: without keyAuthorization the credential verifies standalone
+        // (no key / company prefix / prefix chain). When present, full KeyDataCredential chain applies.
+        extendsCredentialType: { type: ["KeyCredential"], rule: "KeyDataCredential", optional: true},
         childCredential: undefined
     }
 }

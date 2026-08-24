@@ -1,4 +1,4 @@
-## [Unreleased]
+## [2.8.0] - 2026-08-24
 
 - Allow `EpcisCredential` to verify without `keyAuthorization` / `extendsCredential`
   - Parent KeyCredential chain is optional; missing link → standalone verification (schema/dates only, no key / company prefix / prefix load)

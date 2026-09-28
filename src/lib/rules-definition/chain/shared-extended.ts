@@ -77,18 +77,6 @@ export async function checkIssuerToSubjectId(credential: VerifiableCredential, e
     return {verified: true};
 }
 
-
-export function checkIssuerToSubjectId_schema(credential: VerifiableCredential, extendedCredentialSubject: CredentialSubject | undefined): gs1CredentialValidationRuleResult {
-
-    // Compare Issuer and Subject ID
-    const credentialIssuer = getCredentialIssuer(credential);
-    if (credentialIssuer !== extendedCredentialSubject?.id) {
-        return {verified: false, rule: invalidIssueSubject};
-    }  
-
-    return {verified: true};
-}
-
 // Check the Issuers of the credentials in the chain to ensure they are valid
 // Compare Issuers of Organization Data Credential and it's chain.
 // Note: companyPrefix is the Key Credential's parent, which is a parent Key Credential for serialized keys.

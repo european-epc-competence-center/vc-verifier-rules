@@ -101,7 +101,8 @@ missing issuer or expected DID, where the old `!==` compare treated two missing 
    parent's issuer. Known limitation: a parent signed with the did:webvh and a child signed with
    the did:web still fails; fixing that would need the anchor two hops up.
 5. Unchanged: the GS1 Global root check (`GS1_GLOBAL_DID` exact match).
-6. Dead code (`checkIssuerToSubjectId_schema`, `validateExtendedLicensePrefix_JsonSchema`) is not
+6. Dead code (`checkIssuerToSubjectId_schema`, `validateExtendedLicensePrefix_JsonSchema`,
+   `compareLicenseLengthsToExtended_schema`) is not
    registered anywhere and not exported from `src/index.ts`. Remove it rather than keeping a
    second, diverging copy.
 7. `gs1-credential-errors.ts`: change the `GS1EX-212` message to describe an issuer/subject
@@ -119,7 +120,7 @@ why GL-3 reports `GS1EX-212` and not `GS1-150`.
 3. Done: step 3 (`checkCredentialChainIssuers`) with unit tests for the mixed combinations and an
    OrganizationData chain test (ProductData uses the same function).
 4. Done: step 4 (`checkCredentialIssuers`) with a serialized KeyCredential chain test.
-5. Cleanup: step 6 (dead `_schema` code) and step 7 (`GS1EX-212` message).
+5. Done: cleanup, step 6 (dead `_schema` code) and step 7 (`GS1EX-212` message).
 6. Docs: README environment variables section, CHANGELOG entry, remove this plan file.
 
 ## Tests

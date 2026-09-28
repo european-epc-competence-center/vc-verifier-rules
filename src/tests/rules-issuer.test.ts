@@ -231,4 +231,29 @@ describe('Tests for did:webvh twin of a did:web', () => {
             expect(issuerActsFor(didWebvh, didWebvh)).toBe(true);
         })
     })
+
+    describe('checkIssuerToSubjectId', () => {
+
+        const credentialIssuedBy = (issuer: string) => ({...mockCompanyPrefixCredential, issuer: { id: issuer }});
+        const subjectWithId = (id: string): CredentialSubject => ({...mockCompanyPrefixCredential.credentialSubject, id });
+
+        it('should accept a did:webvh issuer for a did:web subject when the flag is enabled', async () => {
+            process.env.GS1_ALLOW_DID_WEBVH_TWIN = "true";
+            const result = await checkIssuerToSubjectId(credentialIssuedBy(didWebvh), subjectWithId(didWeb));
+            expect(result.verified).toBe(true);
+        })
+
+        it('should reject a did:webvh issuer for a did:web subject when the flag is disabled', async () => {
+            delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+            const result = await checkIssuerToSubjectId(credentialIssuedBy(didWebvh), subjectWithId(didWeb));
+            expect(result.verified).toBe(false);
+            expect(result.rule?.code).toBe("GS1EX-212");
+        })
+
+        it('should reject a did:web issuer for a did:webvh subject when the flag is enabled', async () => {
+            process.env.GS1_ALLOW_DID_WEBVH_TWIN = "true";
+            const result = await checkIssuerToSubjectId(credentialIssuedBy(didWeb), subjectWithId(didWebvh));
+            expect(result.verified).toBe(false);
+        })
+    })
 })

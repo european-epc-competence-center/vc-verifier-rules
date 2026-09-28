@@ -68,7 +68,8 @@ Direction (important):
   now; it could be added later inside the same helper without touching call sites.
 
 Kept from the sketch: cover all chain paths, anchor on the license subject, and keep behavior
-byte-for-byte unchanged when the twin rule doesn't apply.
+unchanged when the twin rule doesn't apply. The one intended exception: `issuerActsFor` rejects a
+missing issuer or expected DID, where the old `!==` compare treated two missing values as a match.
 
 ## Change
 
@@ -80,16 +81,20 @@ byte-for-byte unchanged when the twin rule doesn't apply.
      `expectedDid` starts with `did:web:` and `getDidWebTwin(issuer) === expectedDid`).
 2. `checkIssuerToSubjectId`: use `issuerActsFor(issuer, subject.id)`.
    Covers GL-3 (company prefix license signed by the member organization's twin) and K-7b
-   (KeyCredential signed by the licensee's twin).
-3. `checkCredentialChainIssuers` (data -> key -> company prefix): anchor on the license subject
-   instead of requiring identical issuers. Accept if either holds:
-   - `data === key && key === cpIssuer`: keeps the existing strict path where the member
-     organization issued on the licensee's behalf.
-   - `issuerActsFor(data, cpSubject) && issuerActsFor(key, cpSubject)`.
-
-   Without the twin rule this is equivalent to the current logic. It also fixes the most likely
-   real-world break: old KeyCredentials signed with the did:web and new data credentials signed
-   with the did:webvh (or the reverse, as long as the subject is the did:web).
+   (KeyCredential signed by the licensee's twin). `CredentialSubject.id` is typed `string | URL`;
+   only a string id can match (as before).
+3. `checkCredentialChainIssuers` (data -> key -> key's parent): accept if, for an anchor `A` in
+   {parent issuer, parent subject id}, `issuerActsFor(data, A) && issuerActsFor(key, A)`.
+   - With the flag off this reduces to `data === key && (key === parentIssuer || key === parentSubject)`,
+     which is exactly today's logic.
+   - The `companyPrefix` slot is really the key's parent (`setupDataCredentialChain` in
+     `validate-extended-data-key.ts`). In serialized (K-8) chains that parent is a KeyCredential whose
+     subject is a Digital Link, so only the parent issuer can anchor there. Anchoring on the license
+     subject alone would leave those chains strict.
+   - `A = parent issuer` also covers the path where the member organization issued on the licensee's
+     behalf.
+   - Fixes the most likely real-world break: old KeyCredentials signed with the did:web and new data
+     credentials signed with the did:webvh (or the reverse, as long as the anchor is the did:web).
 4. K-8a (`KeyCredential` -> parent `KeyCredential` in `validate-extended-company-prefix.ts`):
    replace the `checkCredentialIssuers` call with `issuerActsFor(childIssuer, parentIssuer)`.
    Change the call site only: `checkCredentialIssuers` is also used by the "same issuer"
@@ -102,6 +107,21 @@ byte-for-byte unchanged when the twin rule doesn't apply.
    second, diverging copy.
 7. `gs1-credential-errors.ts`: change the `GS1EX-212` message to describe an issuer/subject
    mismatch. Keep the code.
+
+Side note: the `GS1CompanyPrefixLicenseCredential -> GS1PrefixLicenseCredential` branch in
+`validateExtendedCompanyPrefixCredential` is unreachable. That chain is routed to
+`validateExtendedLicensePrefix` (rule `GS1PrefixLicenseCredential` in `gs1-chain-rules.ts`), which is
+why GL-3 reports `GS1EX-212` and not `GS1-150`.
+
+## Commit sequence
+
+1. Done: helpers `isDidWebvhTwinAllowed`, `getDidWebTwin`, `issuerActsFor` with unit tests.
+2. Done: step 2 (`checkIssuerToSubjectId`) with unit and chain tests (GL-3, K-7b).
+3. Step 3 (`checkCredentialChainIssuers`) with unit tests for the mixed combinations and a
+   ProductData chain test.
+4. Step 4 (K-8a call site) with a serialized KeyCredential chain test.
+5. Cleanup: step 6 (dead `_schema` code) and step 7 (`GS1EX-212` message).
+6. Docs: README environment variables section, CHANGELOG entry, remove this plan file.
 
 ## Tests
 

@@ -57,19 +57,20 @@ export function issuerActsFor(issuer: string, expectedDid: string | undefined): 
     }
 
     return (
-      issuer === expectedDid ||
-      (isDidWebvhTwinAllowed() && getDidWebTwin(issuer) === expectedDid)
+        issuer === expectedDid ||
+        (isDidWebvhTwinAllowed() && getDidWebTwin(issuer) === expectedDid)
     );
 }
 
 // Extended Credential Validation Rules
 // Rules:
-// - Validate Issuer of credential matches the Subject ID of Extended Credential
+// - Validate Issuer of credential matches (or acts for, see issuerActsFor) the Subject ID of Extended Credential
 export async function checkIssuerToSubjectId(credential: VerifiableCredential, extendedCredentialSubject: CredentialSubject | undefined): Promise<gs1CredentialValidationRuleResult> {
 
     // Compare Issuer and Subject ID
     const credentialIssuer = getCredentialIssuer(credential);
-    if (credentialIssuer !== extendedCredentialSubject?.id) {
+    const subjectId = extendedCredentialSubject?.id;
+    if (typeof subjectId !== "string" || !issuerActsFor(credentialIssuer, subjectId)) {
         return {verified: false, rule: invalidIssueSubject};
     }  
 

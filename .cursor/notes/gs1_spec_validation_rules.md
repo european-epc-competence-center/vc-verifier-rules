@@ -290,13 +290,17 @@ This is the **correct architectural choice** as these validations:
 
 Spec source: [gs1/GS1DigitalLicenses](https://github.com/gs1/GS1DigitalLicenses) (`license_validation.html`, `validating_keys.html`, `validating_data.html`). Spec only says "MUST match" and doesn't define DID equivalence. GS1 VC Data Model 1.0.1 lets parties choose any DID method, and PL-2 explicitly names did:webvh.
 
-All issuer comparisons are strict string compares in `rules-definition/chain/shared-extended.ts`:
-- `checkIssuerToSubjectId`: GL-3 (CP license issuer = prefix subject) and K-7b (key issuer = CP subject)
-- `checkCredentialChainIssuers`: D (data issuer = key issuer), key issuer = CP issuer or CP subject
-- `checkCredentialIssuers`: K-8a (key issuer = parent key issuer) plus "same issuer" fallbacks in `validate-extended-company-prefix.ts`
+Issuer comparisons live in `rules-definition/chain/shared-extended.ts`. `issuerActsFor(issuer, expectedDid)` = exact match, or (flag `GS1_ALLOW_DID_WEBVH_TWIN=true`) did:webvh issuer whose `getDidWebTwin()` equals the expected did:web:
+- `checkIssuerToSubjectId` (uses `issuerActsFor`): GL-3 (CP license issuer = prefix subject, error `GS1EX-212` via `validateExtendedLicensePrefix`) and K-7b (key issuer = CP subject, `GS1-150` after strict same-issuer fallback)
+- `checkCredentialChainIssuers` (strict): D (data issuer = key issuer), key issuer = parent issuer or parent subject. The `companyPrefix` slot is the key's parent, i.e. a parent KeyCredential in serialized K-8 chains
+- `checkCredentialIssuers` (strict): K-8a (key issuer = parent key issuer) plus "same issuer" fallbacks in `validate-extended-company-prefix.ts`
 - `*_schema` / `validateExtendedLicensePrefix_JsonSchema`: dead code, not registered
+- The CP -> Prefix `else` branch in `validateExtendedCompanyPrefixCredential` is unreachable (CP chains route to `validateExtendedLicensePrefix` per `gs1-chain-rules.ts`)
+- `CredentialSubject.id` is typed `string | URL`; narrow with `typeof === "string"` before calling `issuerActsFor`
 
-did:webvh facts (DIF spec v1.0): same DID-to-HTTPS path as did:web (`did.jsonl` vs `did.json`). The parallel did:web is built by replacing `did:webvh:<SCID>:` with `did:web:`, and its document MUST list the webvh DID in `alsoKnownAs`. Portability changes the domain in the DID string, and resolvers must ignore prior domains. So a did:webvh twin carries the same trust as the did:web (domain control) and is safe to accept for a did:web subject, but not the reverse (that would downgrade the SCID binding). Planned design (opt-in via `GS1_ALLOW_DID_WEBVH_TWIN`, default off): `PLAN-did-webvh-twin.md`.
+did:webvh facts (DIF spec v1.0): same DID-to-HTTPS path as did:web (`did.jsonl` vs `did.json`). The parallel did:web is built by replacing `did:webvh:<SCID>:` with `did:web:`, and its document MUST list the webvh DID in `alsoKnownAs`. Portability changes the domain in the DID string, and resolvers must ignore prior domains. So a did:webvh twin carries the same trust as the did:web (domain control) and is safe to accept for a did:web subject, but not the reverse (that would downgrade the SCID binding). Design and remaining steps (opt-in via `GS1_ALLOW_DID_WEBVH_TWIN`, default off): `PLAN-did-webvh-twin.md`.
+
+Tests: run with `npm test` (needs `--experimental-vm-modules`; plain `npx jest` fails on `import.meta`). Twin tests reset the env var in `afterEach` (`rules-issuer.test.ts`, `rules-chain.test.ts`).
 
 Env var config precedent: `GS1_GLOBAL_DID` is read via a getter at call time (`validate-extended-license-prefix.ts`). The README doesn't document env vars yet.
 

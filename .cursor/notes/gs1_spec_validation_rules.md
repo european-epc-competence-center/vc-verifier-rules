@@ -286,6 +286,20 @@ This is the **correct architectural choice** as these validations:
 - **Status**: **Low priority** - Current approach is more flexible and works correctly
 - **Recommendation**: Keep as-is unless strict format enforcement is required
 
+### Issuer DID Matching and did:web / did:webvh Twins
+
+Spec source: [gs1/GS1DigitalLicenses](https://github.com/gs1/GS1DigitalLicenses) (`license_validation.html`, `validating_keys.html`, `validating_data.html`). Spec only says "MUST match" and doesn't define DID equivalence. GS1 VC Data Model 1.0.1 lets parties choose any DID method, and PL-2 explicitly names did:webvh.
+
+All issuer comparisons are strict string compares in `rules-definition/chain/shared-extended.ts`:
+- `checkIssuerToSubjectId`: GL-3 (CP license issuer = prefix subject) and K-7b (key issuer = CP subject)
+- `checkCredentialChainIssuers`: D (data issuer = key issuer), key issuer = CP issuer or CP subject
+- `checkCredentialIssuers`: K-8a (key issuer = parent key issuer) plus "same issuer" fallbacks in `validate-extended-company-prefix.ts`
+- `*_schema` / `validateExtendedLicensePrefix_JsonSchema`: dead code, not registered
+
+did:webvh facts (DIF spec v1.0): same DID-to-HTTPS path as did:web (`did.jsonl` vs `did.json`). The parallel did:web is built by replacing `did:webvh:<SCID>:` with `did:web:`, and its document MUST list the webvh DID in `alsoKnownAs`. Portability changes the domain in the DID string, and resolvers must ignore prior domains. So a did:webvh twin carries the same trust as the did:web (domain control) and is safe to accept for a did:web subject, but not the reverse (that would downgrade the SCID binding). Planned design (opt-in via `GS1_ALLOW_DID_WEBVH_TWIN`, default off): `PLAN-did-webvh-twin.md`.
+
+Env var config precedent: `GS1_GLOBAL_DID` is read via a getter at call time (`validate-extended-license-prefix.ts`). The README doesn't document env vars yet.
+
 ### Test Coverage: Comprehensive
 
 **Test Statistics**:

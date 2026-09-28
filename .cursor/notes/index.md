@@ -18,7 +18,7 @@
 - [Validation Architecture](./validation_architecture.md) - How credential validation works
 - [GS1 Credential Types](./gs1_credentials.md) - Supported credential types and chain hierarchy (incl. EpcisCredential → KeyCredential via keyAuthorization)
 - [Business Rules](./business_rules.md) - GS1 validation rules and error codes
-- [GS1 Spec Validation Rules](./gs1_spec_validation_rules.md) - GS1 Digital Licenses spec compliance and gaps
+- [GS1 Spec Validation Rules](./gs1_spec_validation_rules.md) - GS1 Digital Licenses spec compliance and gaps, issuer DID matching sites, did:web/did:webvh twin reasoning
 - [GS1 Digital Link Implementation](./gs1_digital_link_implementation.md) - Digital Link parsing, validation, and check digits
 - [KeyCredential Chains (K-8)](./key_credential_chains.md) - Serialized item support (SGTIN → GTIN)
 - [Testing](./testing.md) - Test structure and mock data

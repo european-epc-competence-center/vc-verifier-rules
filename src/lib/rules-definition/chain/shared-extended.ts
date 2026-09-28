@@ -21,6 +21,47 @@ export function getCredentialIssuer(credential: VerifiableCredential) : string {
     return typeof credential.issuer === "string" ? credential.issuer : credential.issuer.id;
  }
 
+// Opt-in via GS1_ALLOW_DID_WEBVH_TWIN=true.
+export function isDidWebvhTwinAllowed(): boolean {
+    if (typeof process === "undefined" || !process.env) {
+        return false;
+    }
+
+    return process.env.GS1_ALLOW_DID_WEBVH_TWIN?.toLowerCase() === "true";
+}
+
+// did:webvh:<SCID>:<host>[:<path>] -> did:web:<host>[:<path>]
+// Returns undefined for anything that is not a well-formed did:webvh.
+export function getDidWebTwin(did: string): string | undefined {
+    const [scheme, method, scid, ...hostAndPath] = did.split(":");
+
+    if (scheme !== "did" ||
+        method !== "webvh" ||
+        !scid ||
+        hostAndPath.length === 0 ||
+        hostAndPath.includes("")) {
+        return undefined;
+    }
+
+    return `did:web:${hostAndPath.join(":")}`;
+}
+
+// Check if the issuer may act for the expected DID: either an exact match or, when enabled,
+// a did:webvh issuer whose parallel did:web is the expected DID.
+// One-way only: a did:web never acts for a did:webvh, which would drop the SCID binding.
+export function issuerActsFor(issuer: string, expectedDid: string | undefined): boolean {
+    // Reject missing input up front: getDidWebTwin() returns undefined for invalid DIDs,
+    // so a missing expectedDid would otherwise match an invalid issuer (undefined === undefined).
+    if (!issuer || !expectedDid) {
+        return false;
+    }
+
+    return (
+      issuer === expectedDid ||
+      (isDidWebvhTwinAllowed() && getDidWebTwin(issuer) === expectedDid)
+    );
+}
+
 // Extended Credential Validation Rules
 // Rules:
 // - Validate Issuer of credential matches the Subject ID of Extended Credential

@@ -163,4 +163,55 @@ describe('Example Chain Validation Tests', () => {
       expect(credResult.verified).toBe(true);
     });
   });
+
+  describe('did:webvh twin in a serialized KeyCredential chain (K-8a)', () => {
+    const licensee = 'did:web:id.tortugadeoro.com';
+    const licenseeTwin = 'did:webvh:QmfGEUAcMpzo25kF2Rhn8L5FAXysfGnkzjwdKoNPi615XQ:id.tortugadeoro.com';
+    const originalFlag = process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+
+    afterEach(() => {
+      if (originalFlag === undefined) {
+        delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+      } else {
+        process.env.GS1_ALLOW_DID_WEBVH_TWIN = originalFlag;
+      }
+    });
+
+    const withIssuer = (credential: VerifiableCredential, issuer: string): VerifiableCredential =>
+      ({ ...credential, issuer: { ...(credential.issuer as object), id: issuer } });
+
+    // SGTIN Key Credential signed by sgtinIssuer, extending the GTIN Key Credential signed by gtinIssuer
+    const validateSgtinSignedBy = async (sgtinIssuer: string, gtinIssuer: string) => {
+      const gtin = withIssuer(gtinKeyCredential, gtinIssuer);
+      const request: gs1ValidatorRequest = {
+        ...validatorRequest,
+        gs1DocumentResolver: {
+          ...validatorRequest.gs1DocumentResolver,
+          externalCredentialLoader: async (url: string) => url === gtinKeyCredential.id ? gtin : mock_getExampleChainCredential(url)
+        }
+      };
+      return checkGS1CredentialWithoutPresentation(request, withIssuer(sgtinKeyCredential, sgtinIssuer));
+    };
+
+    it('should validate an SGTIN Key signed by the did:webvh twin of the GTIN Key issuer when the flag is enabled', async () => {
+      process.env.GS1_ALLOW_DID_WEBVH_TWIN = 'true';
+      const result = await validateSgtinSignedBy(licenseeTwin, licensee);
+      expect(result.verified).toBe(true);
+    });
+
+    it('should reject an SGTIN Key signed by the did:webvh twin of the GTIN Key issuer when the flag is disabled', async () => {
+      delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+      const result = await validateSgtinSignedBy(licenseeTwin, licensee);
+      expect(result.verified).toBe(false);
+      expect(result.errors.some((error) => error.code === 'GS1-150')).toBe(true);
+    });
+
+    // Known limitation: the did:web anchor (Company Prefix License subject) is two hops up
+    it('should reject an SGTIN Key signed by the did:web when the GTIN Key is signed by the did:webvh twin', async () => {
+      process.env.GS1_ALLOW_DID_WEBVH_TWIN = 'true';
+      const result = await validateSgtinSignedBy(licensee, licenseeTwin);
+      expect(result.verified).toBe(false);
+      expect(result.errors.some((error) => error.code === 'GS1-150')).toBe(true);
+    });
+  });
 });

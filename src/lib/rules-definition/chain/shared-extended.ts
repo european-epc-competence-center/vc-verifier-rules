@@ -119,17 +119,9 @@ export function checkCredentialChainIssuers(credentialToCheck: credentialChainIs
     );
 }
 
-// Comparer the issuers between two Verifiable Credentials
+// Check that the issuer of credential matches (or acts for, see issuerActsFor) the issuer of credentialToCompare
 export function checkCredentialIssuers(credential: VerifiableCredential, credentialToCompare: VerifiableCredential): boolean {
-
-    const credentialIssuer = getCredentialIssuer(credential);
-    const credentialToCompareIssuer = getCredentialIssuer(credentialToCompare);
-
-    if (credentialIssuer !== credentialToCompareIssuer) {
-        return false;
-    }
-
-    return true;
+    return issuerActsFor(getCredentialIssuer(credential), getCredentialIssuer(credentialToCompare));
 }
 
 

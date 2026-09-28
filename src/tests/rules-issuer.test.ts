@@ -261,6 +261,20 @@ describe('Tests for did:webvh twin of a did:web', () => {
         })
     })
 
+    describe('checkCredentialIssuers', () => {
+
+        const credentialIssuedBy = (issuer: string) => ({...mockCompanyPrefixCredential, issuer: { id: issuer }});
+
+        it('should accept a did:webvh issuer for a did:web issuer only when the flag is enabled', () => {
+            process.env.GS1_ALLOW_DID_WEBVH_TWIN = "true";
+            expect(checkCredentialIssuers(credentialIssuedBy(didWebvh), credentialIssuedBy(didWeb))).toBe(true);
+            expect(checkCredentialIssuers(credentialIssuedBy(didWeb), credentialIssuedBy(didWebvh))).toBe(false);
+
+            delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+            expect(checkCredentialIssuers(credentialIssuedBy(didWebvh), credentialIssuedBy(didWeb))).toBe(false);
+        })
+    })
+
     describe('checkCredentialChainIssuers', () => {
 
         const [companyPrefixCredential, keyCredential, dataCredential] = mockPresentationParty.verifiableCredential;

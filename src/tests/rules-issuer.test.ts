@@ -213,6 +213,10 @@ describe('Tests for did:webvh twin of a did:web', () => {
             expect(issuerActsFor(didWebvh, undefined)).toBe(false);
             expect(issuerActsFor("", "")).toBe(false);
         })
+
+        it('should reject an expected DID that is a URL object', () => {
+            expect(issuerActsFor(didWeb, new URL(didWeb))).toBe(false);
+        })
     })
 
     describe('issuerActsFor with the flag disabled', () => {
@@ -254,6 +258,66 @@ describe('Tests for did:webvh twin of a did:web', () => {
             process.env.GS1_ALLOW_DID_WEBVH_TWIN = "true";
             const result = await checkIssuerToSubjectId(credentialIssuedBy(didWeb), subjectWithId(didWebvh));
             expect(result.verified).toBe(false);
+        })
+    })
+
+    describe('checkCredentialChainIssuers', () => {
+
+        const [companyPrefixCredential, keyCredential, dataCredential] = mockPresentationParty.verifiableCredential;
+        const memberOrganizationTwin = `did:webvh:${scid}:cbpvsvip-vc.gs1us.org`;
+
+        const chainIssuers = (dataIssuer: string, keyIssuer: string, companyPrefixSubject: string) => ({
+            dataCredential: {...dataCredential, issuer: { id: dataIssuer }},
+            keyCredential: {...keyCredential, issuer: { id: keyIssuer }},
+            companyPrefix: {...companyPrefixCredential, credentialSubject: {...companyPrefixCredential.credentialSubject, id: companyPrefixSubject}}
+        });
+
+        describe('with the flag enabled', () => {
+
+            beforeEach(() => {
+                process.env.GS1_ALLOW_DID_WEBVH_TWIN = "true";
+            })
+
+            it('should accept data and key credentials signed by the did:webvh twin of the license subject', () => {
+                expect(checkCredentialChainIssuers(chainIssuers(didWebvh, didWebvh, didWeb))).toBe(true);
+            })
+
+            it('should accept a mix of the did:web and its did:webvh twin', () => {
+                expect(checkCredentialChainIssuers(chainIssuers(didWebvh, didWeb, didWeb))).toBe(true);
+                expect(checkCredentialChainIssuers(chainIssuers(didWeb, didWebvh, didWeb))).toBe(true);
+            })
+
+            it('should accept data and key credentials signed by the did:webvh twin of the parent issuer', () => {
+                expect(checkCredentialChainIssuers(chainIssuers(memberOrganizationTwin, memberOrganizationTwin, didWeb))).toBe(true);
+            })
+
+            it('should reject a did:web signer when the license subject is the did:webvh', () => {
+                expect(checkCredentialChainIssuers(chainIssuers(didWeb, didWeb, didWebvh))).toBe(false);
+                expect(checkCredentialChainIssuers(chainIssuers(didWebvh, didWeb, didWebvh))).toBe(false);
+            })
+
+            it('should reject a did:webvh signer for a different host', () => {
+                expect(checkCredentialChainIssuers(chainIssuers(`did:webvh:${scid}:example.org`, didWeb, didWeb))).toBe(false);
+            })
+        })
+
+        describe('with the flag disabled', () => {
+
+            beforeEach(() => {
+                delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+            })
+
+            it('should reject data and key credentials signed by the did:webvh twin of the license subject', () => {
+                expect(checkCredentialChainIssuers(chainIssuers(didWebvh, didWebvh, didWeb))).toBe(false);
+            })
+
+            it('should reject a mix of the did:web and its did:webvh twin', () => {
+                expect(checkCredentialChainIssuers(chainIssuers(didWebvh, didWeb, didWeb))).toBe(false);
+            })
+
+            it('should still accept data and key credentials signed by the license subject', () => {
+                expect(checkCredentialChainIssuers(chainIssuers(didWeb, didWeb, didWeb))).toBe(true);
+            })
         })
     })
 })

@@ -117,8 +117,8 @@ why GL-3 reports `GS1EX-212` and not `GS1-150`.
 
 1. Done: helpers `isDidWebvhTwinAllowed`, `getDidWebTwin`, `issuerActsFor` with unit tests.
 2. Done: step 2 (`checkIssuerToSubjectId`) with unit and chain tests (GL-3, K-7b).
-3. Step 3 (`checkCredentialChainIssuers`) with unit tests for the mixed combinations and a
-   ProductData chain test.
+3. Done: step 3 (`checkCredentialChainIssuers`) with unit tests for the mixed combinations and an
+   OrganizationData chain test (ProductData uses the same function).
 4. Step 4 (K-8a call site) with a serialized KeyCredential chain test.
 5. Cleanup: step 6 (dead `_schema` code) and step 7 (`GS1EX-212` message).
 6. Docs: README environment variables section, CHANGELOG entry, remove this plan file.

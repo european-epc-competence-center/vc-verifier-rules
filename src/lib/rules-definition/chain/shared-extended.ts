@@ -49,10 +49,11 @@ export function getDidWebTwin(did: string): string | undefined {
 // Check if the issuer may act for the expected DID: either an exact match or, when enabled,
 // a did:webvh issuer whose parallel did:web is the expected DID.
 // One-way only: a did:web never acts for a did:webvh, which would drop the SCID binding.
-export function issuerActsFor(issuer: string, expectedDid: string | undefined): boolean {
+export function issuerActsFor(issuer: string, expectedDid: string | URL | undefined): boolean {
     // Reject missing input up front: getDidWebTwin() returns undefined for invalid DIDs,
     // so a missing expectedDid would otherwise match an invalid issuer (undefined === undefined).
-    if (!issuer || !expectedDid) {
+    // A URL object (allowed by the CredentialSubject type) never matches, as with a plain !== compare.
+    if (!issuer || typeof expectedDid !== "string" || !expectedDid) {
         return false;
     }
 
@@ -69,8 +70,7 @@ export async function checkIssuerToSubjectId(credential: VerifiableCredential, e
 
     // Compare Issuer and Subject ID
     const credentialIssuer = getCredentialIssuer(credential);
-    const subjectId = extendedCredentialSubject?.id;
-    if (typeof subjectId !== "string" || !issuerActsFor(credentialIssuer, subjectId)) {
+    if (!issuerActsFor(credentialIssuer, extendedCredentialSubject?.id)) {
         return {verified: false, rule: invalidIssueSubject};
     }  
 
@@ -91,7 +91,7 @@ export function checkIssuerToSubjectId_schema(credential: VerifiableCredential, 
 
 // Check the Issuers of the credentials in the chain to ensure they are valid
 // Compare Issuers of Organization Data Credential and it's chain.
-// The Organization Data Credential Issuer must match the Key Credential Issuer or the Company Prefix Credential Subject Id
+// Note: companyPrefix is the Key Credential's parent, which is a parent Key Credential for serialized keys.
 export function checkCredentialChainIssuers(credentialToCheck: credentialChainIssuers) : boolean {
 
     if (!credentialToCheck) {
@@ -110,18 +110,13 @@ export function checkCredentialChainIssuers(credentialToCheck: credentialChainIs
     if (!organizationCredentialIssuer || !keyCredentialIssuer || !companyPrefixCredentialIssuer || !companyPrefixSubjectID) {
         return false;
     }
-    
-    if (organizationCredentialIssuer === keyCredentialIssuer) {
-        if (keyCredentialIssuer !== companyPrefixCredentialIssuer) {
-            if (keyCredentialIssuer !== companyPrefixSubjectID) {
-                return false;
-            }
-        }
-    } else {
-        return false;
-    }
 
-    return true;
+    // Data and Key Credential must both act for the same anchor (the parent's issuer or subject).
+    // Same anchor means same party, so no separate data === key check is needed.
+    return [companyPrefixCredentialIssuer, companyPrefixSubjectID].some(anchor =>
+        issuerActsFor(organizationCredentialIssuer, anchor) &&
+        issuerActsFor(keyCredentialIssuer, anchor)
+    );
 }
 
 // Comparer the issuers between two Verifiable Credentials

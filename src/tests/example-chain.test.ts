@@ -193,14 +193,14 @@ describe('Example Chain Validation Tests', () => {
       return checkGS1CredentialWithoutPresentation(request, withIssuer(sgtinKeyCredential, sgtinIssuer));
     };
 
-    it('should validate an SGTIN Key signed by the did:webvh twin of the GTIN Key issuer when the flag is enabled', async () => {
-      process.env.GS1_ALLOW_DID_WEBVH_TWIN = 'true';
+    it('should validate an SGTIN Key signed by the did:webvh twin of the GTIN Key issuer by default', async () => {
+      delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
       const result = await validateSgtinSignedBy(licenseeTwin, licensee);
       expect(result.verified).toBe(true);
     });
 
     it('should reject an SGTIN Key signed by the did:webvh twin of the GTIN Key issuer when the flag is disabled', async () => {
-      delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+      process.env.GS1_ALLOW_DID_WEBVH_TWIN = 'false';
       const result = await validateSgtinSignedBy(licenseeTwin, licensee);
       expect(result.verified).toBe(false);
       expect(result.errors.some((error) => error.code === 'GS1-150')).toBe(true);
@@ -208,7 +208,7 @@ describe('Example Chain Validation Tests', () => {
 
     // Known limitation: the did:web anchor (Company Prefix License subject) is two hops up
     it('should reject an SGTIN Key signed by the did:web when the GTIN Key is signed by the did:webvh twin', async () => {
-      process.env.GS1_ALLOW_DID_WEBVH_TWIN = 'true';
+      delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
       const result = await validateSgtinSignedBy(licensee, licenseeTwin);
       expect(result.verified).toBe(false);
       expect(result.errors.some((error) => error.code === 'GS1-150')).toBe(true);

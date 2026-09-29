@@ -163,17 +163,17 @@ describe('Tests for did:webvh twin of a did:web', () => {
 
     describe('isDidWebvhTwinAllowed', () => {
 
-        it('should be disabled when the flag is unset', () => {
+        it('should be enabled when the flag is unset', () => {
             delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
-            expect(isDidWebvhTwinAllowed()).toBe(false);
+            expect(isDidWebvhTwinAllowed()).toBe(true);
         })
 
-        it.each(["false", "1", "yes", ""])('should be disabled when the flag is "%s"', (value) => {
+        it.each(["false", "FALSE", "False"])('should be disabled when the flag is "%s"', (value) => {
             process.env.GS1_ALLOW_DID_WEBVH_TWIN = value;
             expect(isDidWebvhTwinAllowed()).toBe(false);
         })
 
-        it.each(["true", "TRUE", "True"])('should be enabled when the flag is "%s"', (value) => {
+        it.each(["true", "TRUE", "1", "yes", ""])('should be enabled when the flag is "%s"', (value) => {
             process.env.GS1_ALLOW_DID_WEBVH_TWIN = value;
             expect(isDidWebvhTwinAllowed()).toBe(true);
         })
@@ -221,18 +221,25 @@ describe('Tests for did:webvh twin of a did:web', () => {
 
     describe('issuerActsFor with the flag disabled', () => {
 
-        it.each([undefined, "false", "1"])('should reject a did:webvh issuer for its did:web twin when the flag is %s', (value) => {
-            if (value === undefined) {
-                delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
-            } else {
-                process.env.GS1_ALLOW_DID_WEBVH_TWIN = value;
-            }
+        beforeEach(() => {
+            process.env.GS1_ALLOW_DID_WEBVH_TWIN = "false";
+        })
+
+        it('should reject a did:webvh issuer for its did:web twin', () => {
             expect(issuerActsFor(didWebvh, didWeb)).toBe(false);
         })
 
         it('should still accept an exact match', () => {
-            delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
             expect(issuerActsFor(didWebvh, didWebvh)).toBe(true);
+        })
+    })
+
+    describe('issuerActsFor by default', () => {
+
+        it('should accept a did:webvh issuer for its did:web twin when the flag is unset', () => {
+            delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+            expect(issuerActsFor(didWebvh, didWeb)).toBe(true);
+            expect(issuerActsFor(didWeb, didWebvh)).toBe(false);
         })
     })
 
@@ -248,7 +255,7 @@ describe('Tests for did:webvh twin of a did:web', () => {
         })
 
         it('should reject a did:webvh issuer for a did:web subject when the flag is disabled', async () => {
-            delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+            process.env.GS1_ALLOW_DID_WEBVH_TWIN = "false";
             const result = await checkIssuerToSubjectId(credentialIssuedBy(didWebvh), subjectWithId(didWeb));
             expect(result.verified).toBe(false);
             expect(result.rule?.code).toBe("GS1EX-212");
@@ -270,7 +277,7 @@ describe('Tests for did:webvh twin of a did:web', () => {
             expect(checkCredentialIssuers(credentialIssuedBy(didWebvh), credentialIssuedBy(didWeb))).toBe(true);
             expect(checkCredentialIssuers(credentialIssuedBy(didWeb), credentialIssuedBy(didWebvh))).toBe(false);
 
-            delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+            process.env.GS1_ALLOW_DID_WEBVH_TWIN = "false";
             expect(checkCredentialIssuers(credentialIssuedBy(didWebvh), credentialIssuedBy(didWeb))).toBe(false);
         })
     })
@@ -318,7 +325,7 @@ describe('Tests for did:webvh twin of a did:web', () => {
         describe('with the flag disabled', () => {
 
             beforeEach(() => {
-                delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+                process.env.GS1_ALLOW_DID_WEBVH_TWIN = "false";
             })
 
             it('should reject data and key credentials signed by the did:webvh twin of the license subject', () => {

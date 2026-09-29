@@ -21,13 +21,13 @@ export function getCredentialIssuer(credential: VerifiableCredential) : string {
     return typeof credential.issuer === "string" ? credential.issuer : credential.issuer.id;
  }
 
-// Opt-in via GS1_ALLOW_DID_WEBVH_TWIN=true.
+// Enabled by default; opt-out via GS1_ALLOW_DID_WEBVH_TWIN=false.
 export function isDidWebvhTwinAllowed(): boolean {
     if (typeof process === "undefined" || !process.env) {
-        return false;
+        return true;
     }
 
-    return process.env.GS1_ALLOW_DID_WEBVH_TWIN?.toLowerCase() === "true";
+    return process.env.GS1_ALLOW_DID_WEBVH_TWIN?.toLowerCase() !== "false";
 }
 
 // did:webvh:<SCID>:<host>[:<path>] -> did:web:<host>[:<path>]

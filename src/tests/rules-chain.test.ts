@@ -340,47 +340,47 @@ describe('Tests for did:webvh twin issuers in the credential chain', () => {
         return validateExtendedKeyCredential("OrganizationDataCredential", resultBuildChain);
     }
 
-    it('should validate a Company Prefix License signed by the did:webvh twin when the flag is enabled', async () => {
-        process.env.GS1_ALLOW_DID_WEBVH_TWIN = "true";
+    it('should validate a Company Prefix License signed by the did:webvh twin by default', async () => {
+        delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
         const result = await validateCompanyPrefixSignedByTwin();
         expect(result.verified).toBe(true);
     })
 
     it('should reject a Company Prefix License signed by the did:webvh twin when the flag is disabled', async () => {
-        delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+        process.env.GS1_ALLOW_DID_WEBVH_TWIN = "false";
         const result = await validateCompanyPrefixSignedByTwin();
         expect(result.verified).toBe(false);
         expect(result.errors.some(error => error.code === "GS1EX-212")).toBe(true);
     })
 
-    it('should validate a KeyCredential signed by the did:webvh twin of the license subject when the flag is enabled', async () => {
-        process.env.GS1_ALLOW_DID_WEBVH_TWIN = "true";
+    it('should validate a KeyCredential signed by the did:webvh twin of the license subject by default', async () => {
+        delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
         const result = await validateKeyCredential(`did:webvh:${scid}:acme.example`, "did:web:acme.example");
         expect(result.verified).toBe(true);
     })
 
     it('should reject a KeyCredential signed by the did:webvh twin of the license subject when the flag is disabled', async () => {
-        delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+        process.env.GS1_ALLOW_DID_WEBVH_TWIN = "false";
         const result = await validateKeyCredential(`did:webvh:${scid}:acme.example`, "did:web:acme.example");
         expect(result.verified).toBe(false);
         expect(result.errors.some(error => error.code === "GS1-150")).toBe(true);
     })
 
-    it('should validate a data credential chain signed by the did:webvh twin of the license subject when the flag is enabled', async () => {
-        process.env.GS1_ALLOW_DID_WEBVH_TWIN = "true";
+    it('should validate a data credential chain signed by the did:webvh twin of the license subject by default', async () => {
+        delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
         const result = await validateOrganizationDataSignedBy(`did:webvh:${scid}:acme.example`);
         expect(result.verified).toBe(true);
     })
 
     it('should reject a data credential chain signed by the did:webvh twin of the license subject when the flag is disabled', async () => {
-        delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+        process.env.GS1_ALLOW_DID_WEBVH_TWIN = "false";
         const result = await validateOrganizationDataSignedBy(`did:webvh:${scid}:acme.example`);
         expect(result.verified).toBe(false);
         expect(result.errors.some(error => error.code === "GS1-150")).toBe(true);
     })
 
     it('should reject a KeyCredential signed by the did:web when the license subject is the did:webvh', async () => {
-        process.env.GS1_ALLOW_DID_WEBVH_TWIN = "true";
+        delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
         const result = await validateKeyCredential("did:web:acme.example", `did:webvh:${scid}:acme.example`);
         expect(result.verified).toBe(false);
         expect(result.errors.some(error => error.code === "GS1-150")).toBe(true);

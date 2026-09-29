@@ -290,7 +290,7 @@ This is the **correct architectural choice** as these validations:
 
 Spec source: [gs1/GS1DigitalLicenses](https://github.com/gs1/GS1DigitalLicenses) (`license_validation.html`, `validating_keys.html`, `validating_data.html`). Spec only says "MUST match" and doesn't define DID equivalence. GS1 VC Data Model 1.0.1 lets parties choose any DID method, and PL-2 explicitly names did:webvh.
 
-All issuer comparisons (except the GS1 Global root check, exact match on `GS1_GLOBAL_DID`) go through `issuerActsFor(issuer, expectedDid)` in `rules-definition/chain/shared-extended.ts`: exact match, or, with `GS1_ALLOW_DID_WEBVH_TWIN=true` (read at call time, default off, issue #9), a did:webvh issuer whose `getDidWebTwin()` equals the expected did:web. Missing values never match. Callers:
+All issuer comparisons (except the GS1 Global root check, exact match on `GS1_GLOBAL_DID`) go through `issuerActsFor(issuer, expectedDid)` in `rules-definition/chain/shared-extended.ts`: exact match, or, unless `GS1_ALLOW_DID_WEBVH_TWIN=false` (read at call time, default on, only `false` disables, issue #9), a did:webvh issuer whose `getDidWebTwin()` equals the expected did:web. Missing values never match. Callers:
 - `checkIssuerToSubjectId`: GL-3 (error `GS1EX-212` via `validateExtendedLicensePrefix`), K-7b
 - `checkCredentialIssuers` (issuer acts for the other credential's issuer): K-8a and the "same issuer" fallbacks in `validate-extended-company-prefix.ts` (`GS1-150`)
 - `checkCredentialChainIssuers` (D-6): data and key issuer must both act for one anchor, the key parent's issuer or subject. The `companyPrefix` slot is the key's parent, i.e. a parent KeyCredential in serialized K-8 chains

@@ -21,14 +21,56 @@ export function getCredentialIssuer(credential: VerifiableCredential) : string {
     return typeof credential.issuer === "string" ? credential.issuer : credential.issuer.id;
  }
 
+// Enabled by default; opt-out via GS1_ALLOW_DID_WEBVH_TWIN=false.
+export function isDidWebvhTwinAllowed(): boolean {
+    if (typeof process === "undefined" || !process.env) {
+        return true;
+    }
+
+    return process.env.GS1_ALLOW_DID_WEBVH_TWIN?.toLowerCase() !== "false";
+}
+
+// did:webvh:<SCID>:<host>[:<path>] -> did:web:<host>[:<path>]
+// Returns undefined for anything that is not a well-formed did:webvh.
+export function getDidWebTwin(did: string): string | undefined {
+    const [scheme, method, scid, ...hostAndPath] = did.split(":");
+
+    if (scheme !== "did" ||
+        method !== "webvh" ||
+        !scid ||
+        hostAndPath.length === 0 ||
+        hostAndPath.includes("")) {
+        return undefined;
+    }
+
+    return `did:web:${hostAndPath.join(":")}`;
+}
+
+// Check if the issuer may act for the expected DID: either an exact match or, when enabled,
+// a did:webvh issuer whose parallel did:web is the expected DID.
+// One-way only: a did:web never acts for a did:webvh, which would drop the SCID binding.
+export function issuerActsFor(issuer: string, expectedDid: string | URL | undefined): boolean {
+    // Reject missing input up front: getDidWebTwin() returns undefined for invalid DIDs,
+    // so a missing expectedDid would otherwise match an invalid issuer (undefined === undefined).
+    // A URL object (allowed by the CredentialSubject type) never matches, as with a plain !== compare.
+    if (!issuer || typeof expectedDid !== "string" || !expectedDid) {
+        return false;
+    }
+
+    return (
+        issuer === expectedDid ||
+        (isDidWebvhTwinAllowed() && getDidWebTwin(issuer) === expectedDid)
+    );
+}
+
 // Extended Credential Validation Rules
 // Rules:
-// - Validate Issuer of credential matches the Subject ID of Extended Credential
+// - Validate Issuer of credential matches (or acts for, see issuerActsFor) the Subject ID of Extended Credential
 export async function checkIssuerToSubjectId(credential: VerifiableCredential, extendedCredentialSubject: CredentialSubject | undefined): Promise<gs1CredentialValidationRuleResult> {
 
     // Compare Issuer and Subject ID
     const credentialIssuer = getCredentialIssuer(credential);
-    if (credentialIssuer !== extendedCredentialSubject?.id) {
+    if (!issuerActsFor(credentialIssuer, extendedCredentialSubject?.id)) {
         return {verified: false, rule: invalidIssueSubject};
     }  
 
@@ -49,7 +91,7 @@ export function checkIssuerToSubjectId_schema(credential: VerifiableCredential, 
 
 // Check the Issuers of the credentials in the chain to ensure they are valid
 // Compare Issuers of Organization Data Credential and it's chain.
-// The Organization Data Credential Issuer must match the Key Credential Issuer or the Company Prefix Credential Subject Id
+// Note: companyPrefix is the Key Credential's parent, which is a parent Key Credential for serialized keys.
 export function checkCredentialChainIssuers(credentialToCheck: credentialChainIssuers) : boolean {
 
     if (!credentialToCheck) {
@@ -68,31 +110,18 @@ export function checkCredentialChainIssuers(credentialToCheck: credentialChainIs
     if (!organizationCredentialIssuer || !keyCredentialIssuer || !companyPrefixCredentialIssuer || !companyPrefixSubjectID) {
         return false;
     }
-    
-    if (organizationCredentialIssuer === keyCredentialIssuer) {
-        if (keyCredentialIssuer !== companyPrefixCredentialIssuer) {
-            if (keyCredentialIssuer !== companyPrefixSubjectID) {
-                return false;
-            }
-        }
-    } else {
-        return false;
-    }
 
-    return true;
+    // Data and Key Credential must both act for the same anchor (the parent's issuer or subject).
+    // Same anchor means same party, so no separate data === key check is needed.
+    return [companyPrefixCredentialIssuer, companyPrefixSubjectID].some(anchor =>
+        issuerActsFor(organizationCredentialIssuer, anchor) &&
+        issuerActsFor(keyCredentialIssuer, anchor)
+    );
 }
 
-// Comparer the issuers between two Verifiable Credentials
+// Check that the issuer of credential matches (or acts for, see issuerActsFor) the issuer of credentialToCompare
 export function checkCredentialIssuers(credential: VerifiableCredential, credentialToCompare: VerifiableCredential): boolean {
-
-    const credentialIssuer = getCredentialIssuer(credential);
-    const credentialToCompareIssuer = getCredentialIssuer(credentialToCompare);
-
-    if (credentialIssuer !== credentialToCompareIssuer) {
-        return false;
-    }
-
-    return true;
+    return issuerActsFor(getCredentialIssuer(credential), getCredentialIssuer(credentialToCompare));
 }
 
 

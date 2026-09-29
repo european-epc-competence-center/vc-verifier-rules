@@ -12,7 +12,7 @@ GS1 credentials form a hierarchical chain from specific data credentials up to t
 
 **Purpose**: Root credential issued by GS1 Global for prefix licenses.
 
-**Issuer**: GS1 Global (`did:web:id.gs1.org` by default, configurable)
+**Issuer**: GS1 Global (`did:web:vc.gs1.org` by default, configurable via `GS1_GLOBAL_DID`)
 
 **Subject Fields**:
 - `licenseValue`: GS1 prefix (e.g., "08")
@@ -301,7 +301,7 @@ https://id.gs1.org/{AI}/{KEY_VALUE}
 
 ### GS1 Global DID
 
-**Default**: `did:web:id.gs1.org`
+**Default**: `did:web:vc.gs1.org` (`DEFAULT_GS1_GLOBAL_DID` in `validate-extended-license-prefix.ts`)
 
 **Configuration**: Can be overridden via environment variable (see CHANGELOG 2.3.0)
 

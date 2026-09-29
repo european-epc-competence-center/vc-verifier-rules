@@ -43,6 +43,10 @@ The library requires the following environment:
 - Node - v18.20.4+
 - NPM - v10.7.0+
 
+## Environment Variables
+- `GS1_GLOBAL_DID`: DID of GS1 Global, the required issuer of `GS1PrefixLicenseCredential` (default `did:web:vc.gs1.org`). Override for testing only.
+- `GS1_ALLOW_DID_WEBVH_TWIN`: by default, a `did:webvh:<SCID>:<host>[:<path>]` issuer may act for its twin `did:web:<host>[:<path>]` in issuer checks. Set to `false` to require exact DID matches. One-way only: a `did:web` never acts for a `did:webvh`.
+
 # Repo Folders
 - `src\getting-started`: Getting started guide on how to use the GS1 Verifiable Credential validation rules library
 - `src\lib`: The main code for the GS1 US vc-verifier-rules JavaScript library.

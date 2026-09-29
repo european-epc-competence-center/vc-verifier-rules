@@ -1,3 +1,13 @@
+## [Unreleased]
+
+- Accept a `did:webvh` issuer wherever its twin `did:web` is expected ([#9](https://github.com/european-epc-competence-center/vc-verifier-rules/issues/9))
+  - A `did:webvh:<SCID>:<host>` issuer is accepted where `did:web:<host>` is expected (all issuer checks except the GS1 Global root check)
+  - Enabled by default; set environment variable `GS1_ALLOW_DID_WEBVH_TWIN=false` to keep exact matching
+  - One-way only: a `did:web` never stands in for a `did:webvh`
+  - No DID resolution
+- Issuer checks now reject a missing issuer instead of treating two missing values as a match
+- Fix `GS1EX-212` message, which described a license value error instead of an issuer/subject mismatch
+
 ## [2.8.0] - 2026-08-24
 
 - Allow `EpcisCredential` to verify without `keyAuthorization` / `extendsCredential`

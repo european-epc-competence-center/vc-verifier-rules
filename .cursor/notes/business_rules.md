@@ -177,8 +177,8 @@ All GS1 validation errors use format: `GS1-XXX`
 
 ### GS1-212: Invalid Issuer Subject
 **Code**: `invalidIssueSubject`  
-**Rule**: "License value does not start with the correct prefix value."  
-**Trigger**: Extended issuer subject validation failure  
+**Rule**: "The issuer of this credential does not match the subject of the extended credential."  
+**Trigger**: `checkIssuerToSubjectId` failure in `validateExtendedLicensePrefix` (GL-3)  
 **Note**: Code prefixed with "GS1EX" in source
 
 ---

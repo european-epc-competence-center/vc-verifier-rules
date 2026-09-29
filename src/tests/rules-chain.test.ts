@@ -5,7 +5,7 @@ import { externalCredential, gs1CredentialValidationRule, gs1RulesResult, Verifi
 import { mockCompanyPrefixCredential, mockEpcisCredentialStandalone, mockEpcisCredentialWithKey, mockGenericCredential, mockPrefixLicenseCredential, mockPresentationParty } from './mock-credential';
 import { realJsonSchemaLoader } from './test-helpers.js';
 import { validateExtendedCompanyPrefixCredential } from '../lib/rules-definition/chain/validate-extended-company-prefix';
-import { validateExtendedKeyDataCredential } from '../lib/rules-definition/chain/validate-extended-data-key';
+import { validateExtendedKeyCredential, validateExtendedKeyDataCredential } from '../lib/rules-definition/chain/validate-extended-data-key';
 import { compareLicenseValue } from '../lib/rules-definition/chain/shared-extended';
 import { normalizeCredential } from '../lib/utility/jwt-utils';
 
@@ -296,5 +296,94 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
         expect(result).toBe(false);
     })
 
+})
+
+describe('Tests for did:webvh twin issuers in the credential chain', () => {
+
+    const scid = "QmfGEUAcMpzo25kF2Rhn8L5FAXysfGnkzjwdKoNPi615XQ";
+    const originalFlag = process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+
+    afterEach(() => {
+        if (originalFlag === undefined) {
+            delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+        } else {
+            process.env.GS1_ALLOW_DID_WEBVH_TWIN = originalFlag;
+        }
+    })
+
+    // Company Prefix License signed by the did:webvh twin of the Prefix License subject (GL-3)
+    const validateCompanyPrefixSignedByTwin = async () => {
+        const companyPrefixCredential = {...mockCompanyPrefixCredential, issuer: `did:webvh:${scid}:cbpvsvip-vc.gs1us.org`};
+        const mockPresentation = {...mockPresentationParty, verifiableCredential: [companyPrefixCredential]};
+        const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, mockPresentation, companyPrefixCredential);
+        return validateCredentialChain(mock_checkExternalCredential, resultBuildChain, true, realJsonSchemaLoader, true);
+    }
+
+    // KeyCredential signed by keyIssuer under a Company Prefix License whose subject is companyPrefixSubject (K-7b)
+    const validateKeyCredential = async (keyIssuer: string, companyPrefixSubject: string) => {
+        const presentation = JSON.parse(JSON.stringify(mockPresentationParty));
+        presentation.verifiableCredential[0].credentialSubject.id = companyPrefixSubject;
+        presentation.verifiableCredential[1].issuer = { id: keyIssuer };
+
+        const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, presentation, presentation.verifiableCredential[1]);
+        return validateExtendedCompanyPrefixCredential("KeyCredential", resultBuildChain);
+    }
+
+    // Organization Data Credential and its KeyCredential both signed by signer, license subject is did:web:acme.example
+    const validateOrganizationDataSignedBy = async (signer: string) => {
+        const presentation = JSON.parse(JSON.stringify(mockPresentationParty));
+        presentation.verifiableCredential[0].credentialSubject.id = "did:web:acme.example";
+        presentation.verifiableCredential[1].issuer = { id: signer };
+        presentation.verifiableCredential[2].issuer = { id: signer };
+
+        const resultBuildChain = await buildCredentialChain(mock_getExternalCredential, presentation, presentation.verifiableCredential[2]);
+        return validateExtendedKeyCredential("OrganizationDataCredential", resultBuildChain);
+    }
+
+    it('should validate a Company Prefix License signed by the did:webvh twin by default', async () => {
+        delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+        const result = await validateCompanyPrefixSignedByTwin();
+        expect(result.verified).toBe(true);
+    })
+
+    it('should reject a Company Prefix License signed by the did:webvh twin when the flag is disabled', async () => {
+        process.env.GS1_ALLOW_DID_WEBVH_TWIN = "false";
+        const result = await validateCompanyPrefixSignedByTwin();
+        expect(result.verified).toBe(false);
+        expect(result.errors.some(error => error.code === "GS1EX-212")).toBe(true);
+    })
+
+    it('should validate a KeyCredential signed by the did:webvh twin of the license subject by default', async () => {
+        delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+        const result = await validateKeyCredential(`did:webvh:${scid}:acme.example`, "did:web:acme.example");
+        expect(result.verified).toBe(true);
+    })
+
+    it('should reject a KeyCredential signed by the did:webvh twin of the license subject when the flag is disabled', async () => {
+        process.env.GS1_ALLOW_DID_WEBVH_TWIN = "false";
+        const result = await validateKeyCredential(`did:webvh:${scid}:acme.example`, "did:web:acme.example");
+        expect(result.verified).toBe(false);
+        expect(result.errors.some(error => error.code === "GS1-150")).toBe(true);
+    })
+
+    it('should validate a data credential chain signed by the did:webvh twin of the license subject by default', async () => {
+        delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+        const result = await validateOrganizationDataSignedBy(`did:webvh:${scid}:acme.example`);
+        expect(result.verified).toBe(true);
+    })
+
+    it('should reject a data credential chain signed by the did:webvh twin of the license subject when the flag is disabled', async () => {
+        process.env.GS1_ALLOW_DID_WEBVH_TWIN = "false";
+        const result = await validateOrganizationDataSignedBy(`did:webvh:${scid}:acme.example`);
+        expect(result.verified).toBe(false);
+        expect(result.errors.some(error => error.code === "GS1-150")).toBe(true);
+    })
+
+    it('should reject a KeyCredential signed by the did:web when the license subject is the did:webvh', async () => {
+        delete process.env.GS1_ALLOW_DID_WEBVH_TWIN;
+        const result = await validateKeyCredential("did:web:acme.example", `did:webvh:${scid}:acme.example`);
+        expect(result.verified).toBe(false);
+        expect(result.errors.some(error => error.code === "GS1-150")).toBe(true);
+    })
 })
 

@@ -7,8 +7,6 @@
   - No DID resolution
 - Issuer checks now reject a missing issuer instead of treating two missing values as a match
 - Fix `GS1EX-212` message, which described a license value error instead of an issuer/subject mismatch
-- Remove unused, unexported `validateExtendedLicensePrefix_JsonSchema`, `compareLicenseLengthsToExtended_schema` and `checkIssuerToSubjectId_schema`
-
 
 ## [2.8.0] - 2026-08-24
 

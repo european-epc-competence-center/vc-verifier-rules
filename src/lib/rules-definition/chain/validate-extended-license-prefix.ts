@@ -2,7 +2,7 @@ import { invalidExtendedCredentialMissing, invalidIssueForPrefixLicense, invalid
 import { credentialChainMetaData } from "../../engine/validate-extended-credential.js";
 import { gs1CredentialValidationRuleResult, subjectLicenseValue } from "../../gs1-rules-types.js";
 import { gs1RulesResult, VerifiableCredential } from "../../types.js";
-import { checkIssuerToSubjectId, compareLicenseValue, getCredentialIssuer } from "./shared-extended.js";
+import { checkIssuerToSubjectId, checkIssuerToSubjectId_schema, compareLicenseValue, getCredentialIssuer } from "./shared-extended.js";
 import { normalizeCredential } from "../../utility/jwt-utils.js";
 
 const DEFAULT_GS1_GLOBAL_DID = "did:web:vc.gs1.org";
@@ -25,6 +25,26 @@ const getGS1GlobalDID = () => process.env.GS1_GLOBAL_DID || DEFAULT_GS1_GLOBAL_D
 // Compare company prefix license to prefix license value to validate the license value starts with prefix license value
 // Developer Notes: CredentialSubject is defined as any because the credential subject is dynamic based on JSON-LD for a credential
 export async function compareLicenseLengthsToExtended(credentialSubject: subjectLicenseValue | undefined, extendedCredentialSubject: subjectLicenseValue | undefined): Promise<gs1CredentialValidationRuleResult> {
+
+    const licenseValue = credentialSubject?.licenseValue;
+    const extendedLicenseValue = extendedCredentialSubject?.licenseValue;
+
+    if (!licenseValue || !extendedLicenseValue) {
+        return {verified: false, rule: invalidLicenseValueFormat};
+    }
+
+    // Compare License Field Lengths
+    if (compareLicenseValue(licenseValue, extendedLicenseValue)) {
+        if (licenseValue.length <= extendedLicenseValue.length) {
+            return {verified: false, rule: invalidLicenseValueStartPrefix};
+        }
+    } else {
+        return {verified: false, rule: invalidLicenseValueFormat};
+    }
+    return {verified: true};
+}
+
+export function compareLicenseLengthsToExtended_schema(credentialSubject: subjectLicenseValue | undefined, extendedCredentialSubject: subjectLicenseValue | undefined): gs1CredentialValidationRuleResult {
 
     const licenseValue = credentialSubject?.licenseValue;
     const extendedLicenseValue = extendedCredentialSubject?.licenseValue;
@@ -85,6 +105,49 @@ export async function validateExtendedLicensePrefix(credentialType: string,
 
     return gs1CredentialCheck;
 }
+
+// Validate the extended credentials for Prefix License Credential
+export function validateExtendedLicensePrefix_JsonSchema(credentialType: string, 
+    credentialChain: credentialChainMetaData): gs1RulesResult {
+
+    const gs1CredentialCheck: gs1RulesResult = { credentialId: normalizeCredential(credentialChain.credential).id, credentialName: credentialType, verified: true, errors: []};
+
+    const credential = normalizeCredential(credentialChain.credential);
+    const credentialSubject = credential.credentialSubject;
+    const extendedCredential = credentialChain.extendedCredentialChain?.credential ? normalizeCredential(credentialChain.extendedCredentialChain?.credential) : undefined;
+    const extendedCredentialSubject = extendedCredential?.credentialSubject;
+
+    if (!extendedCredential) {
+        gs1CredentialCheck.verified = false;
+        gs1CredentialCheck.errors.push(invalidExtendedCredentialMissing);
+        return gs1CredentialCheck;
+    }
+
+    // Verify Prefix License Credential Issuer is GS1 Global
+    const extendedCredentialIssuer = getCredentialIssuer(extendedCredential);
+    if (extendedCredentialIssuer !== getGS1GlobalDID()) {
+        gs1CredentialCheck.verified = false;
+        gs1CredentialCheck.errors.push(invalidIssueForPrefixLicense);
+        return gs1CredentialCheck;
+    }
+
+    const issuerResult = checkIssuerToSubjectId_schema(credential, extendedCredentialSubject);
+    if (!issuerResult.verified && issuerResult.rule) {
+        gs1CredentialCheck.errors.push(issuerResult.rule);
+    }
+
+    const compareLicenseLResult = compareLicenseLengthsToExtended_schema(credentialSubject, extendedCredentialSubject);
+    if (!compareLicenseLResult.verified && compareLicenseLResult.rule) {
+        gs1CredentialCheck.errors.push(compareLicenseLResult.rule);
+    }
+
+    if (gs1CredentialCheck.errors.length > 0) {
+        gs1CredentialCheck.verified = false;
+    }
+
+    return gs1CredentialCheck;
+}
+
 
 // Validate root of trust when a GS1PrefixLicenseCredential is presented on its own
 export function validatePrefixRootOfTrust(credentialType: string, credential: VerifiableCredential): gs1RulesResult {

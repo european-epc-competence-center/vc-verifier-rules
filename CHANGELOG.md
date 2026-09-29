@@ -1,4 +1,4 @@
-## [Unreleased]
+## [2.9.0] - 2026-09-29
 
 - Accept a `did:webvh` issuer wherever its twin `did:web` is expected ([#9](https://github.com/european-epc-competence-center/vc-verifier-rules/issues/9))
   - A `did:webvh:<SCID>:<host>` issuer is accepted where `did:web:<host>` is expected (all issuer checks except the GS1 Global root check)
@@ -7,6 +7,7 @@
   - No DID resolution
 - Issuer checks now reject a missing issuer instead of treating two missing values as a match
 - Fix `GS1EX-212` message, which described a license value error instead of an issuer/subject mismatch
+
 
 ## [2.8.0] - 2026-08-24
 

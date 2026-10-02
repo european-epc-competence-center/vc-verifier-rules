@@ -42,7 +42,7 @@ GS1 Company Prefix License Credentials (where GL's `extendsCredential` reference
 - **GL-1**: GL MUST conform to the JSON schema `https://id.gs1.org/vc/schema/v1/companyprefix`
 - **GL-2**: EL MUST be a valid GS1 License Credential
 - **GL-3**: EL `credentialSubject.id` MUST match GL `issuer`
-- **GL-4**: GL `licenseValue` MUST begin with and MUST be at least one digit longer than the EL `licenseValue`
+- **GL-4**: GL `licenseValue` MUST begin with and MUST be at least one digit longer than the EL `licenseValue`. If it does not begin with EL `licenseValue`, EL `alternativeLicenseValue` is accepted instead
 - **GL-5**: If PL `alternativeLicenseValue` is present, `licenseValue` must end with `alternativeLicenseValue`
 
 ### Section 4.2.3: Identification Key License Validation Rules (IL)
@@ -151,7 +151,7 @@ The implementation uses error codes GS1-XXX. Here's how spec rules map to implem
 | GL-1 | Conform to company prefix schema | `validate-schema.ts` + Ajv | ✅ Implemented |
 | GL-2 | EL is valid GS1 License | Chain validation | ✅ Implemented |
 | GL-3 | EL subject.id matches GL issuer | `checkIssuerToSubjectId()` | ✅ Implemented |
-| GL-4 | GL licenseValue begins with EL | `compareLicenseLengthsToExtended()` | ✅ Implemented |
+| GL-4 | GL licenseValue begins with EL license value or its alternative | `compareLicenseLengthsToExtended()` | ✅ Implemented |
 | GL-5 | alternativeLicenseValue compatible | `check-credential-alternative-license.ts` | ✅ Implemented |
 | IL-1 | Conform to ID key schema | `validate-schema.ts` + Ajv | ✅ Implemented |
 | IL-2 | EL is valid GS1 License | Chain validation | ✅ Implemented |

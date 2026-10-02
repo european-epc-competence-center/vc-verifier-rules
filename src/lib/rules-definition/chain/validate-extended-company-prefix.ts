@@ -4,6 +4,7 @@ import { gs1RulesResult, gs1CredentialTypes } from "../../types.js";
 import { parseGS1DigitalLink } from "../subject/check-credential-subject-Id-digital-link.js";
 import { gs1CompanyPrefixCredentialType } from "../types/gs1-company-prefix-type";
 import { gs1KeyCredentialType } from "../types/gs1-key-type";
+import { compareLicenseLengthsToExtended_schema } from "./validate-extended-license-prefix.js";
 import { checkCredentialIssuers, checkIssuerToSubjectId, compareLicenseValue } from "./shared-extended.js";
 import { normalizeCredential } from "../../utility/jwt-utils.js";
 import { getCredentialType, KEY_CREDENTIAL } from "../../get-credential-type.js";
@@ -96,14 +97,11 @@ export async function validateExtendedCompanyPrefixCredential(credentialType: st
             }
         }
 
-        // Verify license value starts with parent license value
-        const companyPrefixLicenseValue = currentCredentialSubject.licenseValue;
-        const prefixLicenseValue = extendedCredentialSubject.licenseValue;
-        
-        if (!companyPrefixLicenseValue || !prefixLicenseValue || 
-            !compareLicenseValue(companyPrefixLicenseValue, prefixLicenseValue)) {
+        // Company prefix begins with the parent license value, or its alternativeLicenseValue
+        const licenseResult = compareLicenseLengthsToExtended_schema(currentCredentialSubject, extendedCredentialSubject);
+        if (!licenseResult.verified && licenseResult.rule) {
             gs1CredentialCheck.verified = false;
-            gs1CredentialCheck.errors.push(invalidLicenseValueFormat);
+            gs1CredentialCheck.errors.push(licenseResult.rule);
         }
     }
 

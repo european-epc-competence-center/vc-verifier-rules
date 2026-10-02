@@ -96,8 +96,9 @@ All GS1 validation errors use format: `GS1-XXX`
 **Rule**: "The license value format is not valid."  
 **Trigger**: 
 - License value has invalid characters
-- License value length outside allowed range  
-**File**: `check-credential-license.ts`
+- License value length outside allowed range
+- Company prefix begins with neither the parent `licenseValue` nor its `alternativeLicenseValue`
+**File**: `check-credential-license.ts`, `validate-extended-license-prefix.ts`
 
 ---
 

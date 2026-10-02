@@ -2,7 +2,7 @@ import { invalidExtendedCredentialMissing, invalidIssueForPrefixLicense, invalid
 import { credentialChainMetaData } from "../../engine/validate-extended-credential.js";
 import { gs1CredentialValidationRuleResult, subjectLicenseValue } from "../../gs1-rules-types.js";
 import { gs1RulesResult, VerifiableCredential } from "../../types.js";
-import { checkIssuerToSubjectId, checkIssuerToSubjectId_schema, compareLicenseValue, getCredentialIssuer } from "./shared-extended.js";
+import { checkIssuerToSubjectId, checkIssuerToSubjectId_schema, getCredentialIssuer, licenseMatchesExtendedValue } from "./shared-extended.js";
 import { normalizeCredential } from "../../utility/jwt-utils.js";
 
 const DEFAULT_GS1_GLOBAL_DID = "did:web:vc.gs1.org";
@@ -22,28 +22,8 @@ const getGS1GlobalDID = () => process.env.GS1_GLOBAL_DID || DEFAULT_GS1_GLOBAL_D
     }
 })();
 
-// Compare company prefix license to prefix license value to validate the license value starts with prefix license value
-// Developer Notes: CredentialSubject is defined as any because the credential subject is dynamic based on JSON-LD for a credential
-export async function compareLicenseLengthsToExtended(credentialSubject: subjectLicenseValue | undefined, extendedCredentialSubject: subjectLicenseValue | undefined): Promise<gs1CredentialValidationRuleResult> {
-
-    const licenseValue = credentialSubject?.licenseValue;
-    const extendedLicenseValue = extendedCredentialSubject?.licenseValue;
-
-    if (!licenseValue || !extendedLicenseValue) {
-        return {verified: false, rule: invalidLicenseValueFormat};
-    }
-
-    // Compare License Field Lengths
-    if (compareLicenseValue(licenseValue, extendedLicenseValue)) {
-        if (licenseValue.length <= extendedLicenseValue.length) {
-            return {verified: false, rule: invalidLicenseValueStartPrefix};
-        }
-    } else {
-        return {verified: false, rule: invalidLicenseValueFormat};
-    }
-    return {verified: true};
-}
-
+// GL-4: the child license must be longer than the parent licenseValue and begin with it.
+// If it does not begin with licenseValue, the parent's alternativeLicenseValue is accepted instead.
 export function compareLicenseLengthsToExtended_schema(credentialSubject: subjectLicenseValue | undefined, extendedCredentialSubject: subjectLicenseValue | undefined): gs1CredentialValidationRuleResult {
 
     const licenseValue = credentialSubject?.licenseValue;
@@ -53,15 +33,19 @@ export function compareLicenseLengthsToExtended_schema(credentialSubject: subjec
         return {verified: false, rule: invalidLicenseValueFormat};
     }
 
-    // Compare License Field Lengths
-    if (compareLicenseValue(licenseValue, extendedLicenseValue)) {
-        if (licenseValue.length <= extendedLicenseValue.length) {
-            return {verified: false, rule: invalidLicenseValueStartPrefix};
-        }
-    } else {
+    if (!licenseMatchesExtendedValue(licenseValue, extendedLicenseValue, extendedCredentialSubject?.alternativeLicenseValue)) {
         return {verified: false, rule: invalidLicenseValueFormat};
     }
+
+    if (licenseValue.length <= extendedLicenseValue.length) {
+        return {verified: false, rule: invalidLicenseValueStartPrefix};
+    }
+
     return {verified: true};
+}
+
+export async function compareLicenseLengthsToExtended(credentialSubject: subjectLicenseValue | undefined, extendedCredentialSubject: subjectLicenseValue | undefined): Promise<gs1CredentialValidationRuleResult> {
+    return compareLicenseLengthsToExtended_schema(credentialSubject, extendedCredentialSubject);
 }
 
 // Validate the extended credentials for Prefix License Credential

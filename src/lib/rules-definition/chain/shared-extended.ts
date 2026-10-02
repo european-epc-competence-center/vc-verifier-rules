@@ -130,3 +130,13 @@ export function compareLicenseValue(licenseValue: string, prefixValue: string) :
     const  prefixPosition = licenseValue.indexOf(prefixValue);
     return licenseValue?.startsWith(prefixValue, prefixPosition);
 }
+
+// A child license matches its parent when it stems from the parent licenseValue.
+// If that does not match and the parent has an alternativeLicenseValue, that value is accepted instead.
+export function licenseMatchesExtendedValue(licenseValue: string, extendedLicenseValue: string | null | undefined, alternativeLicenseValue?: string): boolean {
+    if (extendedLicenseValue && compareLicenseValue(licenseValue, extendedLicenseValue)) {
+        return true;
+    }
+
+    return !!alternativeLicenseValue && compareLicenseValue(licenseValue, alternativeLicenseValue);
+}

@@ -253,7 +253,7 @@ rulesEngineManager.KeyDataCredential = validateExtendedKeyDataCredential;
 **validate-extended-license-prefix.ts**:
 - Validates GS1CompanyPrefixLicenseCredential → GS1PrefixLicenseCredential
 - Checks issuer matches GS1 Global (did:web:vc.gs1.org or `GS1_GLOBAL_DID`)
-- Validates company prefix starts with GS1 prefix license value
+- Validates company prefix starts with the GS1 prefix `licenseValue`, or with its `alternativeLicenseValue` when the license value does not match
 
 **validate-extended-company-prefix.ts**:
 - Validates KeyCredential → GS1CompanyPrefixLicenseCredential

@@ -7,6 +7,7 @@ import { realJsonSchemaLoader } from './test-helpers.js';
 import { validateExtendedCompanyPrefixCredential } from '../lib/rules-definition/chain/validate-extended-company-prefix';
 import { validateExtendedKeyCredential, validateExtendedKeyDataCredential } from '../lib/rules-definition/chain/validate-extended-data-key';
 import { compareLicenseValue } from '../lib/rules-definition/chain/shared-extended';
+import { compareLicenseLengthsToExtended } from '../lib/rules-definition/chain/validate-extended-license-prefix';
 import { normalizeCredential } from '../lib/utility/jwt-utils';
 
 // Test function to resolve mock credentials
@@ -294,6 +295,48 @@ describe('Tests for Rules Engine Subject Field Validation', () => {
 
         const result = compareLicenseValue(keyCredentialValue, companyPrefixValue);
         expect(result).toBe(false);
+    })
+
+    it('should accept a company prefix that begins with the parent alternative license value', async () => {
+        const result = await compareLicenseLengthsToExtended(
+            { licenseValue: "4000712" },
+            { licenseValue: "0400", alternativeLicenseValue: "400" }
+        );
+        expect(result.verified).toBe(true);
+    })
+
+    it('should accept a company prefix that begins with a shorter parent alternative license value', async () => {
+        const result = await compareLicenseLengthsToExtended(
+            { licenseValue: "4023331" },
+            { licenseValue: "040", alternativeLicenseValue: "40" }
+        );
+        expect(result.verified).toBe(true);
+    })
+
+    it('should reject a company prefix that matches neither license value nor alternative', async () => {
+        const result = await compareLicenseLengthsToExtended(
+            { licenseValue: "5010712" },
+            { licenseValue: "0400", alternativeLicenseValue: "400" }
+        );
+        expect(result.verified).toBe(false);
+        expect(result.rule?.code).toBe("GS1-202");
+    })
+
+    it('should reject a company prefix that matches the alternative but is not longer than the parent license value', async () => {
+        const result = await compareLicenseLengthsToExtended(
+            { licenseValue: "4000" },
+            { licenseValue: "0400", alternativeLicenseValue: "400" }
+        );
+        expect(result.verified).toBe(false);
+        expect(result.rule?.code).toBe("GS1-201");
+    })
+
+    it('should still accept a company prefix that begins with the parent license value', async () => {
+        const result = await compareLicenseLengthsToExtended(
+            { licenseValue: "081015955" },
+            { licenseValue: "08", alternativeLicenseValue: "8" }
+        );
+        expect(result.verified).toBe(true);
     })
 
 })

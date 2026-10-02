@@ -1,3 +1,9 @@
+## [Unreleased]
+
+- Accept a company prefix that begins with the parent `alternativeLicenseValue` when it does not begin with the parent `licenseValue`
+  - Covers prefix licenses stored with a leading zero (`0400` / `400`, `040` / `40`) while the company prefix uses the unpadded form
+  - The company prefix must still be longer than the parent `licenseValue`
+
 ## [2.9.0] - 2026-09-29
 
 - Accept a `did:webvh` issuer wherever its twin `did:web` is expected ([#9](https://github.com/european-epc-competence-center/vc-verifier-rules/issues/9))

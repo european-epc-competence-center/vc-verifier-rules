@@ -196,9 +196,9 @@ GS1 uses hierarchical prefix structure:
 
 ### Validation Rules
 
-**Company Prefix → GS1 Prefix**:
-- Company prefix must START with GS1 prefix
-- Example: "0860123" starts with "08" ✓
+**Company Prefix → GS1 Prefix** (`compareLicenseLengthsToExtended`):
+- Company prefix must be longer than the parent `licenseValue` and start with it
+- If it does not start with `licenseValue` and the parent has `alternativeLicenseValue`, that value is accepted instead (`0400` / `400` allows `4000712`)
 
 **Key → Company Prefix**:
 - Key license value must START with company prefix
